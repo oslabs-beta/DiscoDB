@@ -7,6 +7,7 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 const db = require('./models/dbConnection.js');
 
+
 app.prepare().then(() => {
   const server = express();
 
@@ -27,3 +28,5 @@ app.prepare().then(() => {
     console.log(`> Ready on http://localhost:${port}`);
   });
 });
+
+module.exports = app;
