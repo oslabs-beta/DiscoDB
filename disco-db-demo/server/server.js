@@ -13,6 +13,11 @@ app.prepare().then(() => {
 
   db.query();
 
+  server.get('/test', (req, res) => {
+    console.log('testing using postman');
+    return res.sendStatus(200);
+  })
+
   server.get('/', (req, res) => {
     console.log('this is to the root endpoint');
     return handle(req, res);
