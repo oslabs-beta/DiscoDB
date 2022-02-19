@@ -7,11 +7,17 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 const db = require('./models/dbConnection.js');
 
+const authRouter = require('./routers/authRouter');
+// const userRouter = require('./routers/userRouter');
+
 
 app.prepare().then(() => {
   const server = express();
 
   db.query();
+
+  server.use('/auth', authRouter);
+  // server.use('/user', userRouter);
 
   server.get('/test', (req, res) => {
     console.log('testing using postman');
