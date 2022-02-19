@@ -5,7 +5,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
+import { default as MUILink } from '@mui/material/Link';
+import Link from 'next/link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -17,9 +18,9 @@ function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
+      <MUILink color="inherit" href="https://mui.com/">
         DiscoDB
-      </Link>{' '}
+      </MUILink>{' '}
       {new Date().getFullYear()}
       {'.'}
     </Typography>
@@ -33,10 +34,24 @@ export default function SignIn() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     // eslint-disable-next-line no-console
-    console.log({
-      email: data.get('email'),
+
+    const loginBody = {
+      userName: data.get('userName'),
       password: data.get('password'),
-    });
+    }
+    
+    const testURL = '/api/hello';
+    const devURL = '/auth/login';
+    fetch(testURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(loginBody),
+    })
+    .then(res => res.json())
+    .then(data => console.log('Success', data))
+    .catch(err => console.log('Error', err))
   };
 
   return (
@@ -62,10 +77,10 @@ export default function SignIn() {
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
+              id="userName"
+              label="Username"
+              name="userName"
+              autoComplete="userName"
               autoFocus
             />
             <TextField
@@ -92,13 +107,17 @@ export default function SignIn() {
             </Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
+                <Link href="#">
+                  <MUILink variant="body2">
+                    Forgot password?
+                  </MUILink>
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
+                <Link href="/auth/signup">
+                  <MUILink variant="body2">
+                    {"Don't have an account? Sign Up"}
+                  </MUILink>
                 </Link>
               </Grid>
             </Grid>
