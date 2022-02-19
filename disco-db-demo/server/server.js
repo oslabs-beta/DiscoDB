@@ -11,7 +11,9 @@ const db = require('./models/dbConnection.js');
 app.prepare().then(() => {
   const server = express();
 
-  db.query();
+  // establish connection to our MongoDB cluster
+  // validate this is necessary
+  db.connection();
 
   server.get('/test', (req, res) => {
     console.log('testing using postman');
