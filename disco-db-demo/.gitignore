@@ -34,4 +34,4 @@ yarn-error.log*
 # vercel
 .vercel
 
-/home/ericmmccorkle/DiscoDB/disco-db-demo/server/models/testQuery.js
+./DiscoDB/disco-db-demo/server/models/testQuery.js
