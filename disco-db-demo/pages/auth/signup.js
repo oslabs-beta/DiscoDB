@@ -5,7 +5,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
+import {default as MUILink} from '@mui/material/Link';
+import Link from 'next/link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -17,9 +18,9 @@ function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
+      <MUILink color="inherit" href="https://mui.com/">
         DiscoDB
-      </Link>{' '}
+      </MUILink>{' '}
       {new Date().getFullYear()}
       {'.'}
     </Typography>
@@ -34,7 +35,7 @@ export default function SignUp() {
     const data = new FormData(event.currentTarget);
     // eslint-disable-next-line no-console
     
-    const loginBody = {
+    const signupBody = {
       userName: data.get('userName'),
       password: data.get('password'),
       firstName: data.get('firstName'),
@@ -48,7 +49,7 @@ export default function SignUp() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(loginBody),
+      body: JSON.stringify(signupBody),
     })
     .then(res => res.json())
     .then(data => console.log('Success', data))
@@ -126,8 +127,10 @@ export default function SignUp() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="#" variant="body2">
-                  Already have an account? Sign in
+                <Link href="/auth/login">
+                  <MUILink href="#" variant="body2">
+                    Already have an account? Sign in
+                  </MUILink>
                 </Link>
               </Grid>
             </Grid>
