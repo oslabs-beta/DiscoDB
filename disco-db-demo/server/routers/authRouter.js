@@ -4,14 +4,13 @@ const router = express.Router();
 // Do we need this? Or will it be handled by nextJS?
 router.get('/login', 
   (req, res) => {
-    console.log('/login')
     res.sendStatus(200);
 });
 
 // Authenticate user using bcrypt. Send error if not valid. Send session cookie once validated.
 router.post('/login', 
   // encryption (bCrypt) middleware
-  // database query middleware
+  // user database query middleware
   // sendCookie middleware
   (req, res) => {
     res.send(200).json(res.locals);
@@ -26,9 +25,9 @@ router.get('/signup',
 // Checks if username is valid. Send error if not valid. Once successfully signed up, automatically logs in user and sends session cookie
 router.post('/signup', 
   // check username middleware
-  // create entry in database middleware
+  // create entry in user database middleware
   // encryption (bCrypt) middleware
-  // database query middleware
+  // user database query middleware
   // sendCookie middleware
   (req, res) => {
     res.send(200).json(res.locals);
