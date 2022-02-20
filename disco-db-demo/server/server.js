@@ -7,11 +7,24 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 const db = require('./models/dbConnection.js');
 
+const authRouter = require('./routers/authRouter');
+const userRouter = require('./routers/userRouter');
+
 
 app.prepare().then(() => {
   const server = express();
 
-  db.query();
+  // establish connection to our MongoDB cluster
+  // validate this is necessary
+  db.connection();
+
+  server.use('/auth', authRouter);
+  server.use('/user', userRouter);
+
+  server.get('/test', (req, res) => {
+    console.log('testing using postman');
+    return res.sendStatus(200);
+  })
 
   server.get('/', (req, res) => {
     console.log('this is to the root endpoint');
