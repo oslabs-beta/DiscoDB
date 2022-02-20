@@ -36,7 +36,7 @@ export default function SignUp() {
     // eslint-disable-next-line no-console
     
     const signupBody = {
-      userName: data.get('userName'),
+      username: data.get('username'),
       password: data.get('password'),
       firstName: data.get('firstName'),
       email: data.get('email')
@@ -99,10 +99,10 @@ export default function SignUp() {
                 <TextField
                   required
                   fullWidth
-                  id="userName"
+                  id="username"
                   label="Username"
-                  name="userName"
-                  autoComplete="userName"
+                  name="username"
+                  autoComplete="username"
                 />
               </Grid>
               <Grid item xs={12}>
