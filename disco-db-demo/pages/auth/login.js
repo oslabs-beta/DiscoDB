@@ -36,7 +36,7 @@ export default function SignIn() {
     // eslint-disable-next-line no-console
 
     const loginBody = {
-      userName: data.get('userName'),
+      username: data.get('username'),
       password: data.get('password'),
     }
     
@@ -77,10 +77,10 @@ export default function SignIn() {
               margin="normal"
               required
               fullWidth
-              id="userName"
+              id="username"
               label="Username"
-              name="userName"
-              autoComplete="userName"
+              name="username"
+              autoComplete="username"
               autoFocus
             />
             <TextField
