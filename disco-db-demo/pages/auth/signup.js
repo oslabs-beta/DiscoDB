@@ -13,6 +13,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useRouter } from 'next/router';
 
 function Copyright(props) {
   return (
@@ -30,6 +31,8 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function SignUp() {
+  const router = useRouter();
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -52,7 +55,12 @@ export default function SignUp() {
       body: JSON.stringify(signupBody),
     })
     .then(res => res.json())
-    .then(data => console.log('Success', data))
+    .then(data => {
+      console.log('Success', data);
+      //have backend send back response that user successfully created account
+      //if success, redirect user to login page, else have them try again
+      router.push('/auth/login');
+    })
     .catch(err => console.log('Error', err))
   };
 
