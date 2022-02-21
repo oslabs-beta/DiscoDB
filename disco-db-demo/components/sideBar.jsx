@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -15,12 +15,25 @@ import MailIcon from '@mui/icons-material/Mail';
 import { Button } from '@mui/material';
 
 const drawerWidth = 240;
-const noteList = ['Document', 'Document', 'Document'];
 
+// const noteList = ['Document', 'Document', 'Document'];
 export default function SideBar() {
-  // const [noteArray, setNewNote] = useState(noteList);
-//On load, get request to database
-//populate notelist array with all documents pertaining to user
+const [noteArray, setNewNote] = useState([]);
+//On initial render, invoke useEffect to grab all notes pertaining to user.
+//Populate the notes in an array and update state to reflect.
+useEffect(() => {
+  fetch('/user')
+  .then((res) => {
+    const userNoteArr = [];
+    res.data.forEach((ele) => {
+      const userNote = {...ele};
+      userNoteArr.push(userNote);
+    });
+    useState([...userNoteArr])
+  })
+  .catch((err) => console.log('Error in fetching data', err))
+}, []);
+
   function newNoteHandler(){
     //make POST request to user/notes with object of {username: username, cratedAt: unix time}
     //after post req, expect response of res.locals.data = {_id:id}
@@ -44,11 +57,9 @@ export default function SideBar() {
       const newNote = <ListItem button id={uniqId}>
         <ListItemText primary="Document"/>
       </ListItem>
-      noteList.push(newNote)
-      console.log(noteList)
+      setNewNote([...noteArray, newNote])
     })
-    .catch((err) => {return console.log('Error', err)})
-    console.log('clicked on newnote')    
+    .catch((err) => {return console.log('Error', err)});
   }
 
   return (
@@ -81,14 +92,15 @@ export default function SideBar() {
         <Button variant="outlined" onClick={newNoteHandler}>New Note</Button>
         <Divider />
         <List>
-          {noteList.map((text, index) => (
+          {/* {noteArray.map((text, index) => (
             <ListItem button key={text}>
               <ListItemIcon>
                 {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
               </ListItemIcon>
               <ListItemText primary={text} />
             </ListItem>
-          ))}
+          ))} */}
+          {noteArray}
         </List>
       </Drawer>
       <Box
