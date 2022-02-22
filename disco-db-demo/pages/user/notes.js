@@ -1,24 +1,24 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Weather from '../../components/Weather';
 import Layout from '../../components/layout';
+import NotesContainer from '../../components/Notes';
 
-export default function User() {
+export default function Notes() {
   return (
     <Box>
-      <Typography paragraph>
-        Hello User
-      </Typography>
-      <Weather />
+        <Typography paragraph>
+          User Notes
+        </Typography>
+        <NotesContainer />
     </Box>
   )
 }
 
-User.getLayout = function getLayout(user) {
+Notes.getLayout = function getLayout(notes) {
   return (
     <Layout>
-      {user}
+      {notes}
     </Layout>
   )
 }

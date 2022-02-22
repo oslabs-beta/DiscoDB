@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { useState, useEffect } from 'react';
 import LinearProgress from '@mui/material/LinearProgress';
 import WeatherDisplay from './WeatherDisplay';
@@ -15,9 +15,11 @@ export default function WeatherAPI(props) {
   useEffect(() => {
     //logic to call weather API
     const weatherURL = `http://api.openweathermap.org/data/2.5/weather?q=${props.city}&lang=${LANG}&appid=${API_KEY}&units=${UNITS}`;
+    const devURL = '/api/weather';
 
 
     //modify this script so the request gets sent to the backend first
+    //sends POST request to api/weather in backend with body as city: 
     fetch(weatherURL)
     .then( response => response.json())
     .then( data => {
@@ -34,6 +36,7 @@ export default function WeatherAPI(props) {
       setError(error);
       setLoading(true);
     })
+    
   }, [props.city])
 
   if(isLoading) {
