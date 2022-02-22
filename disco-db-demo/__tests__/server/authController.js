@@ -1,4 +1,8 @@
 // import the exported module from ./server/controllers/authController.js
+import authController from '../../server/controllers/authController';
+const db = require('../../server/models/dbConnection')
+const mongoose = require('mongoose');
+
 
 describe('Auth Controller', () => {
 
@@ -15,7 +19,7 @@ describe('Auth Controller', () => {
     // declare a test req.body object with a test username and password 
       // it should hash the password 
       // it should create the new user with password in the db 
-      // 
+      // it should reject a username if it is not unique 
 
     it('', () => {
       // 

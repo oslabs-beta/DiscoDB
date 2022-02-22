@@ -2,30 +2,50 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const workFactor = 10;
 
+// require User object from db schema
+const { Users, Notes } = require('../models/model');
+
 // function to encrypt account password 
 function encrypt(password) {
   const workFactor = 10;
   return bcrypt.hash(password, workFactor);
 }
 
-// define auth middlewares 
-const authController = {}; 
+// auth middleware functions 
+const authController = {
+  
+  signup(req, res, next) {
+    // encrypt
+    // console.log(req.body);
+    encrypt(req.body.password)
+      .then(hash => {
+        Users.create({
+          username: req.body.username, 
+          password: hash,
+          first_name: req.body.name,
+          email: req.body.email 
+        },
+        (err, result) => {
+          if (err) {
+            console.log('Error:', err);
+            return next(err);
+          }
+          console.log('result in signup:', result);
+          res.locals.success = true;
+          console.log('res.locals:', res.locals);
+          // add to res.locals
+          return next();
+        })
+      })
+  }
+  
+  
+  // login(req, res, next) {
+  //   const { username, password } = req.body; 
 
-// router.post('/login', 
-  // encryption (bCrypt) middleware
-  // user database query middleware
-  // sendCookie middleware
+  // }
 
-
-// router.post('/signup', 
-  // check username middleware
-  // create entry in user database middleware
-  // encryption (bCrypt) middleware
-  // user database query middleware
-  // sendCookie middleware
-
-
-// middleware functions 
+}; 
 
 
 // login 
@@ -45,3 +65,8 @@ const authController = {};
 
 // generate cookie
   // set a cookie 
+
+
+// logout 
+
+module.exports = authController;

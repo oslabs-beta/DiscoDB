@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const authController = require('../controllers/authController')
 
 // Do we need this? Or will it be handled by nextJS?
 router.get('/login', 
@@ -18,17 +19,18 @@ router.post('/login',
 
 // Do we need this? Or will it be handled by nextJS?
 router.get('/signup', 
+  // () => {console.log(req)}, 
   (req, res) => {
     res.sendStatus(200);
 });
 
 // Checks if username is valid. Send error if not valid. Once successfully signed up, automatically logs in user and sends session cookie
-router.post('/signup', 
-  // check username middleware
-  // create entry in user database middleware
-  // encryption (bCrypt) middleware
-  // user database query middleware
-  // sendCookie middleware
+// check username middleware
+// create entry in user database middleware
+// encryption (bCrypt) middleware
+// user database query middleware
+// sendCookie middleware
+router.post('/signup', authController.signup, 
   (req, res) => {
     res.send(200).json(res.locals);
 });

@@ -1,4 +1,5 @@
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const next = require('next');
 
 const port = parseInt(process.env.PORT, 10) || 3000;
@@ -14,8 +15,13 @@ const userRouter = require('./routers/userRouter');
 app.prepare().then(() => {
   const server = express();
 
+  // Allows server to process incoming JSON, form data into the req.body, cookies
+  server.use(express.json());
+  server.use(express.urlencoded({extended: true}));
+  // server.use(cookieParser); // add cookieParser in when cookies implemented
+
   // establish connection to our MongoDB cluster
-  // validate this is necessary
+  // validate this is necessary while testing authRouter
   db.connection();
 
   server.use('/auth', authRouter);
