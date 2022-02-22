@@ -37,8 +37,8 @@ export default function Navbar() {
 
   }
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+    <Box>
+      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1}}>
         <Toolbar>
           <IconButton
             size="large"
