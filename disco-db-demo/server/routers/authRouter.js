@@ -13,7 +13,7 @@ router.post('/login',
   // user database query middleware
   // sendCookie middleware
   (req, res) => {
-    res.send(200).json(res.locals);
+    return res.send(200).json(res.locals);
 });
 
 // Do we need this? Or will it be handled by nextJS?
