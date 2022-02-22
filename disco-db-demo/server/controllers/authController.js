@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const workFactor = 10;
-
+const responseModel = require('../models/responseModel');
 // require User object from db schema
 const { Users, Notes } = require('../models/model');
 
@@ -22,7 +22,7 @@ const authController = {
         Users.create({
           username: req.body.username, 
           password: hash,
-          first_name: req.body.name,
+          first_name: req.body.firstName, // double check firstName on req.body
           email: req.body.email 
         },
         (err, result) => {
@@ -31,40 +31,53 @@ const authController = {
             return next(err);
           }
           console.log('result in signup:', result);
-          res.locals.success = true;
+          // res.locals.success = true;
           console.log('res.locals:', res.locals);
           // add to res.locals
           return next();
         })
       })
-  }
+  },
   
   
-  // login(req, res, next) {
-  //   const { username, password } = req.body; 
+  login(req, res, next) {
+    console.log('login', req.body);
+    const { username, password } = req.body;
 
-  // }
+    Users.findOne({ username: username }, 
+      (err, result) => {
+        if(err) {
+          return next(err);
+        }
+        if (!result) {
+          // return an error message?? Will we hit this ever? Is this even distinct from if(err) above? 
+          console.log('No result object')
+          // return next('')
+        }
+        const { password: hashedPassword } = result;
+        console.log(result);
+        bcrypt.compare(password, hashedPassword, (err, bcryptRes) => {
+          if (bcryptRes) {
+            console.log('passwords match!'); 
+            return next();
+          } else {
+            console.log('passwords do not match');  
+            return res.status(406).json(responseModel(false, 406, 'Wrong username and/or password', res.locals));
+          }
+        })
+      });
+  }, 
+
+  generateCookie(req, res, next) {
+    
+  }
 
 }; 
 
 
-// login 
-  // destructure req.body
-  // Read query to db 
-  // then 
-    // if error, return next(err);
-    // if query result.rows.length === 0, return next() with error code of not authenticated
-    // destructure hashed password and username from result.rows
-    // bcrypt compare 
-      // if success, return next()
-      // if not success, reutnr next() with error code of not auth'd 
-
-// signup 
-  // call encrypt(req.body.password)
-    // then 
-
 // generate cookie
   // set a cookie 
+
 
 
 // logout 

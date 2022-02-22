@@ -2,14 +2,25 @@
 import authController from '../../server/controllers/authController';
 const db = require('../../server/models/dbConnection')
 const mongoose = require('mongoose');
+const { Users, Notes } = require('../../server/models/model');
 
 
 describe('Auth Controller', () => {
-
+  const deleteTestUsers = () => {
+    Users.deleteOne({username: 'testUser1'});
+    Users.deleteOne({username: 'testUser2'});
+  }
+  const setExistingUser = user1 => {
+    return user1 = {username: 'testUser1'}
+  }
   // needed? beforeAll? 
   // beforeEach(() => {
   //  
   // })
+  berforeAll(() => {
+    db.connection();
+    deleteTestUsers();
+  })
     
 
   // afterEach? afterAll? 
@@ -31,7 +42,7 @@ describe('Auth Controller', () => {
       // expect
     });
       
-    // after
+    // after each
       // remove the user just created via Delete operation  
   });
 
