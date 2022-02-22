@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -20,6 +21,7 @@ const drawerWidth = 240;
 export default function SideBar() {
 const [noteArray, setNewNote] = useState([]);
 const [clickedNote, setClickedNote] = useState("");
+//Saves all notes for user on front-end for later access.
 const userNotesArray = [];
 const example = [{title: 'foo', content: 'bar'}, {title: 'fizz', content: 'buzz'}]
 //On initial render, invoke useEffect to grab all notes pertaining to user.
