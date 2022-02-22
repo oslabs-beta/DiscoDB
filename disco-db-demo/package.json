@@ -16,6 +16,7 @@
     "@fontsource/roboto": "^4.5.3",
     "@mui/icons-material": "^5.4.2",
     "@mui/material": "^5.4.2",
+    "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.0",
     "express": "^4.17.2",
     "mongoose": "^6.2.2",
