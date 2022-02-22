@@ -13,12 +13,15 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import { Button } from '@mui/material';
+import NoteContainer from './NoteContainer';
 
 const drawerWidth = 240;
 
-// const noteList = ['Document', 'Document', 'Document'];
 export default function SideBar() {
 const [noteArray, setNewNote] = useState([]);
+const [clickedNote, setClickedNote] = useState("");
+const userNotesArray = [];
+const example = [{title: 'foo', content: 'bar'}, {title: 'fizz', content: 'buzz'}]
 //On initial render, invoke useEffect to grab all notes pertaining to user.
 //Populate the notes in an array and update state to reflect.
 useEffect(() => {
@@ -26,8 +29,14 @@ useEffect(() => {
   .then((res) => {
     const userNoteArr = [];
     res.data.forEach((ele) => {
+      //usernote has entire object per note for user
       const userNote = {...ele};
-      userNoteArr.push(userNote);
+      userNotesArray.push(userNote);
+      const noteButton = <ListItem button id={ele._id}>
+      <ListItemText primary={ele.title}/>
+    </ListItem>
+    //Convert each usernote into a button and push in array for useState.
+      userNoteArr.push(noteButton);
     });
     useState([...userNoteArr])
   })
@@ -54,13 +63,30 @@ useEffect(() => {
     .then(res => res.json())
     .then((data) => {
       const uniqId = data.data;
-      const newNote = <ListItem button id={uniqId}>
-        <ListItemText primary="Document"/>
+      const ranNum = Math.ceil(Math.random() * 10)
+      const newNote = <ListItem button id={ranNum} onClick={currNoteHandler}>
+        <ListItemText primary="Untitled Note..."/>
       </ListItem>
       setNewNote([...noteArray, newNote])
     })
     .catch((err) => {return console.log('Error', err)});
+  };
+  //Create a click handler to update values in paragraph 
+  //Not sure where to save notes data on inital GET request.
+  //will make another get request to get info
+  function currNoteHandler (e){
+    console.log(e.currentTarget.id);
+    const targetId = e.currentTarget.id
+    //grab note content regarding id
+    //populate the content onto a component and append onto page
+    setClickedNote(<NoteContainer id={targetId} note={example}/>)
+    userNotesArray.forEach((ele) => {
+      if(ele._id === targetId){
+        setClickedNote(<NoteContainer id={targetId} note={ele}/>)
+      }
+    })
   }
+  //Create a click handler to access a button's id thru e.target.attribute
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -122,19 +148,9 @@ useEffect(() => {
           consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
           sapien faucibus et molestie ac.
         </Typography>
-        <Typography paragraph>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
-          eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
-          neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
-          tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
-          sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
-          tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
-          gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
-          et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
-          tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-          eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-          posuere sollicitudin aliquam ultrices sagittis orci a.
-        </Typography>
+        {/* <Typography paragraph> */}
+          {clickedNote}
+        {/* </Typography> */}
       </Box>
     </Box>
   );
