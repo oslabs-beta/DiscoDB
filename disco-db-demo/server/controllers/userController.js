@@ -3,8 +3,8 @@ const userController = {};
 
 // get all user notes from Notes collection
 userController.getUserNotes = (req, res, next) => {
-  // const username = req.cookies.username;
-  const {username} = req.body;
+  const {username} = req.cookies;
+  // const {username} = req.body;
   console.log('Retrieving all notes from username: ', username)
   Notes.find({username: username})
     .then(data => {
