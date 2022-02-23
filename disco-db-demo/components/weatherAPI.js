@@ -23,6 +23,7 @@ export default function WeatherAPI(props) {
     fetch(weatherURL)
     .then( response => response.json())
     .then( data => {
+      //check for statuscode - this is the object that we will get back from the backend
       if (data.cod !== 200) {
         setLoading(true);
       } else {

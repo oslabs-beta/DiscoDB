@@ -17,12 +17,10 @@ const drawerWidth = 240;
 export default function SideBar(props) {
 const router = useRouter();
 const [noteArray, setNewNote] = useState([]);
-// const [clickedNote, setClickedNote] = useState("");
 //Saves all notes as buttons for user on front-end for later access.
 const sidebarArray = [];
 //On initial render, invoke useEffect to grab all notes on props pertaining to user.
 //Populate the notes in an array and update state to reflect.
-// console.log(props)
   useEffect(() => {
     props.usernotes.forEach((ele) => {
     //usernote has entire object per note for user
@@ -41,6 +39,7 @@ const sidebarArray = [];
     //Expect response of res.locals.data = {_id:id}
     //Poplate note array with a new icon with unique ID
     const newNoteInfo = {
+      //Placeholder username, need to replace 
       username: "username",
       createdAt: Math.round((new Date()).getTime() / 1000)
     }
@@ -74,13 +73,7 @@ const sidebarArray = [];
   }
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
-      >
-      </AppBar>
+    <Box>
       <Drawer
         sx={{
           width: drawerWidth,

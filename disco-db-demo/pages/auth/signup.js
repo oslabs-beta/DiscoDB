@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useRouter } from 'next/router';
+import Alert from '@mui/material/Alert';
 
 function Copyright(props) {
   return (
@@ -31,12 +32,12 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function SignUp() {
+  const [auth, setAuth] = React.useState(null);
   const router = useRouter();
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    // eslint-disable-next-line no-console
     
     const signupBody = {
       username: data.get('username'),
@@ -59,7 +60,15 @@ export default function SignUp() {
       console.log('Success', data);
       //have backend send back response that user successfully created account
       //if success, redirect user to login page, else have them try again
-      router.push('/auth/login');
+      if (!data.body.actionSuccess) {
+        setAuth(false);
+      } else {
+        setAuth(true);
+        //temp username to add to localStorage
+        const username = eric;
+        localStorage.setItem('user', username);
+        router.push('/user');
+      }
     })
     .catch(err => console.log('Error', err))
   };
@@ -125,6 +134,11 @@ export default function SignUp() {
                 />
               </Grid>
             </Grid>
+            {auth === false && 
+              <Alert sx={{ mt: 2 }} variant="outlined" severity="error">
+                Username already exists. Please try again
+              </Alert>
+            }
             <Button
               type="submit"
               fullWidth

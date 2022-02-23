@@ -11,13 +11,12 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup';
 import { useRouter } from 'next/router';
 
-export default function Navbar() {
-  const [online, setOnline] = React.useState(true);
+export default function Navbar(props) {
   const router = useRouter();
 
   const handleChange = (event) => {
-    //need access to online/offline property in parent - be sure to pull state up to parent
-    setOnline(event.target.checked);
+    //will need to add logic for offline mode
+    props.setOnline(event.target.checked);
   }
 
   const handleLogout = (event) => {
@@ -31,6 +30,8 @@ export default function Navbar() {
     .then(response => response.json())
     .then(data => {
       console.log('Success! ', data);
+      //clear out username in local storage when user logs off
+      localStorage.clear();
       router.push('/auth/login');
     })
     .catch(error => console.log('Error', error));
@@ -56,13 +57,13 @@ export default function Navbar() {
             <FormControlLabel
               control={
                 <Switch
-                  checked={online}
+                  checked={props.online}
                   onChange={handleChange}
                   aria-label="online switch"
                   color="default"
                 />
               }
-              label={online ? 'Online' : 'Offline'}
+              label={props.online ? 'Online' : 'Offline'}
             />
           </FormGroup>
           <Button color="inherit" onClick={handleLogout}>Logout</Button>

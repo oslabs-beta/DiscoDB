@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useRouter } from 'next/router';
+import Alert from '@mui/material/Alert';
 
 function Copyright(props) {
   return (
@@ -32,7 +33,8 @@ const theme = createTheme();
 
 export default function SignIn() {
   const router = useRouter();
-
+  const [auth, setAuth] = React.useState(null);
+  
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -57,7 +59,15 @@ export default function SignIn() {
       console.log('Success', data);
       //get back response from backend to verify user authentication
       //if success, redirect user to user endpoint
-      router.push('/user');
+      if (!data.body.actionSuccess) {
+        setAuth(false);
+      } else {
+        setAuth(true);
+        //temp username to add to localStorage
+        const username = 'eric';
+        localStorage.setItem('user', username);
+        router.push('/user');
+      }
 
     })
     .catch(err => console.log('Error', err))
@@ -102,6 +112,11 @@ export default function SignIn() {
               id="password"
               autoComplete="current-password"
             />
+            {auth === false && 
+              <Alert variant="outlined" severity="error">
+                Please enter a valid username and password
+              </Alert>
+            }
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
@@ -124,7 +139,7 @@ export default function SignIn() {
               </Grid>
               <Grid item>
                 <Link href="/auth/signup">
-                  <MUILink variant="body2">
+                  <MUILink href="#" variant="body2">
                     {"Don't have an account? Sign Up"}
                   </MUILink>
                 </Link>
