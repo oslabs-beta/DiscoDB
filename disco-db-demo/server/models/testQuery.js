@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { Users, Notes } = require('./model');
-require('dotenv').config();
+require('dotenv').config({path: '../../.env'});
 const db = require('./dbConnection.js');
 
 // mongoose.connect('mongodb+srv://discodb48:Codesmith@cluster0.p9y48.mongodb.net/DiscoDB?retryWrites=true&w=majority', 
