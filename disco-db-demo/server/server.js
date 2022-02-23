@@ -7,7 +7,6 @@ const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 const db = require('./models/dbConnection.js');
-const cookieParser = require('cookie-parser');
 
 const authRouter = require('./routers/authRouter');
 const userRouter = require('./routers/userRouter');

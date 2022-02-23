@@ -1,5 +1,6 @@
 const weatherController = {};
 const axios = require('axios');
+const { createResponse } = require('../models/responseModel');
 
 const API_KEY = '90c77ec3042549f5cc0b7aa750034457'
 const UNITS = 'imperial';
@@ -16,8 +17,10 @@ weatherController.getWeather = (req, res, next) => {
     console.log(data.data);
     res.locals = data.data;
     return next();
-  }).catch(err => {
-    return next(err);
+  })
+  .catch(err => {
+    return res.status(404).json(createResponse(true, 404, 'city not found'));
+    // return next(err);
   })
 }
 
