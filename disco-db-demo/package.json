@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "nodemon server/server.js",
+    "next-dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -10,6 +11,12 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@emotion/react": "^11.8.1",
+    "@emotion/styled": "^11.8.1",
+    "@fontsource/roboto": "^4.5.3",
+    "@mui/icons-material": "^5.4.2",
+    "@mui/material": "^5.4.2",
+    "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.0",
     "express": "^4.17.2",
     "mongoose": "^6.2.2",
