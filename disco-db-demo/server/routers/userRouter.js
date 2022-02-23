@@ -1,31 +1,30 @@
 const express = require('express');
 const router = express.Router();
+const userController = require('../controllers/userController')
 
 router.get('/', 
-  // database query for user specific notes middleware
+  userController.getUserNotes,
   (req, res) => {
-    res.send(200).json(res.locals);
+    return res.status(200).json(res.locals);
 });
 
 // Create a new entry in notes database. Send back unique id for the new entry
 router.post('/notes', 
-  // new entry in notes database middleware
-  // get entry in notes database middleware
+  userController.createAndGetNewNote,
   (req, res) => {
-    res.send(200).json(res.locals);
+    return res.status(200).json(res.locals);
 });
 
 // Modify an entry in notes database. Send back all data related to the updated entry
 router.patch('/notes', 
-  // modify entry in notes database middleware
-  // get entry in notes database middleware
+  userController.modifyAndGetNote,
   (req, res) => {
-    res.send(200).json(res.locals);
+    res.status(200).json(res.locals);
 });
 
 // Delete an entry in notes database.
 router.delete('/notes', 
-  // delete entry in notes database middleware
+  userController.deleteNote,
   (req, res) => {
     res.sendStatus(200);
 });
