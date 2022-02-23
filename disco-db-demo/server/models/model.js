@@ -11,7 +11,7 @@ const userSchema = new Schema({
 
 const noteSchema = new Schema({
   username: {type: [String], required: true},
-  title: {type: String, required: true},
+  title: {type: String},
   content: {type: String},
 
   // unsure if this date field is correctly written 
