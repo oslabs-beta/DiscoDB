@@ -9,7 +9,7 @@ userController.getUserNotes = (req, res, next) => {
   Notes.find({username: username})
     .then(data => {
       console.log(data);
-      res.locals = data;
+      res.locals.data = data;
       return next();
     })
     .catch(err => {
@@ -24,7 +24,7 @@ userController.createAndGetNewNote = (req, res, next) => {
   Notes.create({username: [username], createdAt: createdAt})
     .then(data => {
       console.log(data);
-      res.locals = data;
+      res.locals.data = data;
       return next();
     })
     .catch(err => {
@@ -39,7 +39,7 @@ userController.modifyAndGetNote = (req, res, next) => {
   Notes.findByIdAndUpdate(_id, {title: title, content: content, updatedAt: updatedAt}, {new: true})
     .then(data => {
       console.log(data);
-      res.locals = data;
+      res.locals.data = data;
       return next();
     })
     .catch(err => {
