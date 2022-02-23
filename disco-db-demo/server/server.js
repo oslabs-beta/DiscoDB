@@ -37,10 +37,10 @@ app.prepare().then(() => {
     return handle(req, res);
   });
 
-  // server.all('*', (req, res) => {
-  //   console.log('this is a request to the server');
-  //   return handle(req, res);
-  // });
+  server.all('*', (req, res) => {
+    console.log('this is a request to the server');
+    return handle(req, res);
+  });
 
   // local error handler
   server.use((req, res) => {
