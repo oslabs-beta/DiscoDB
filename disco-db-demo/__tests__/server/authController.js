@@ -1,7 +1,8 @@
 // import the exported module from ./server/controllers/authController.js
 import authController from '../../server/controllers/authController';
 const db = require('../../server/models/dbConnection')
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const { Users, Notes } = require('../../server/models/model');
 
 
@@ -10,38 +11,49 @@ describe('Auth Controller', () => {
     Users.deleteOne({username: 'testUser1'});
     Users.deleteOne({username: 'testUser2'});
   }
-  const setExistingUser = user1 => {
-    return user1 = {username: 'testUser1'}
+  const setExistingUser = username => {
+    return user1 = {username: username}
   }
-  // needed? beforeAll? 
-  // beforeEach(() => {
-  //  
-  // })
+
+  const mockRequest = (username, password) => {
+    return {body: {username: username, password: password}}
+  }
+
+  const mockResponse = () => {
+    const res = {};
+    res.status = jest.fn().mockReturnValue(res);
+    res.json = jest.fn().mockReturnValue(res);
+    return res;
+  };
+
+  const encrypt = (password, workFactor) => {
+    return bcrypt.hash(password, workFactor);
+  }
+
   berforeAll(() => {
     db.connection();
     deleteTestUsers();
+    const workFactor = 10;
+    const username = 'testUser1';
+    const password = 'test123';
+    const encryptPW = encrypt(password, workFactor);
   })
     
-
   // afterEach? afterAll? 
   // drop the record(s) that were just created 
 
-  describe('Sign up ', () => {
+  describe('Sign up ', async () => {
     // declare a test req.body object with a test username and password 
+    const req = mockRequest(username, password);
+    const res = mockResponse();
+    await authController.signup(req, res)
       // it should hash the password 
+      it('Should hash the password', () => {
+        expect(res.locals.password).toBe(encryptPW)
+      })
       // it should create the new user with password in the db 
       // it should reject a username if it is not unique 
-
-    it('', () => {
-      // 
-      // expect
-    });
-    
-    it('', () => {
-      // 
-      // expect
-    });
-      
+  
     // after each
       // remove the user just created via Delete operation  
   });

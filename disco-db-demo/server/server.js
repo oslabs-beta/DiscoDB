@@ -10,6 +10,7 @@ const db = require('./models/dbConnection.js');
 
 const authRouter = require('./routers/authRouter');
 const userRouter = require('./routers/userRouter');
+const apiRouter = require('./routers/apiRouter');
 
 
 app.prepare().then(() => {
@@ -18,7 +19,7 @@ app.prepare().then(() => {
   // Allows server to process incoming JSON, form data into the req.body, cookies
   server.use(express.json());
   server.use(express.urlencoded({extended: true}));
-  // server.use(cookieParser); // add cookieParser in when cookies implemented
+  server.use(cookieParser()); // add cookieParser in when cookies implemented
 
   // establish connection to our MongoDB cluster
   // validate this is necessary while testing authRouter
@@ -26,6 +27,7 @@ app.prepare().then(() => {
 
   server.use('/auth', authRouter);
   server.use('/user', userRouter);
+  server.use('/api', apiRouter);
 
   server.get('/test', (req, res) => {
     console.log('testing using postman');

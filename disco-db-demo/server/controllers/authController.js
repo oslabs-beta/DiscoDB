@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const workFactor = 10;
 const responseModel = require('../models/responseModel');
 // require User object from db schema
-const { Users, Notes } = require('../models/model');
+const { Users } = require('../models/model');
 
 // function to encrypt account password 
 function encrypt(password) {
@@ -15,8 +14,7 @@ function encrypt(password) {
 const authController = {
   
   signup(req, res, next) {
-    // encrypt
-    // console.log(req.body);
+    // encrypt password
     encrypt(req.body.password)
       .then(hash => {
         Users.create({
@@ -27,13 +25,8 @@ const authController = {
         },
         (err, result) => {
           if (err) {
-            console.log('Error:', err);
             return next(err);
           }
-          console.log('result in signup:', result);
-          // res.locals.success = true;
-          console.log('res.locals:', res.locals);
-          // add to res.locals
           return next();
         })
       })
@@ -41,7 +34,6 @@ const authController = {
   
   
   login(req, res, next) {
-    console.log('login', req.body);
     const { username, password } = req.body;
 
     Users.findOne({ username: username }, 
@@ -49,34 +41,34 @@ const authController = {
         if(err) {
           return next(err);
         }
-        if (!result) {
-          // return an error message?? Will we hit this ever? Is this even distinct from if(err) above? 
-          console.log('No result object')
-          // return next('')
-        }
+
+        // destructure hashedPassword and compare to user's inputed password
         const { password: hashedPassword } = result;
-        console.log(result);
         bcrypt.compare(password, hashedPassword, (err, bcryptRes) => {
           if (bcryptRes) {
-            console.log('passwords match!'); 
+            // console.log('passwords match!'); 
             return next();
           } else {
-            console.log('passwords do not match');  
-            return res.status(406).json(responseModel(false, 406, 'Wrong username and/or password', res.locals));
+            // console.log('passwords do not match');  
+            return res.status(406).json(responseModel(false, 406, 'Wrong username and/or password'));
           }
         })
       });
   }, 
 
   generateCookie(req, res, next) {
-    
-  }
 
+    const { username } = req.body;
+    res.cookie('username', username, { httpOnly: true });
+    return next();
+  },
+
+  logout(req, res, next) {
+    res.clearCookie('username');
+    return next();
+  }
 }; 
 
-
-// generate cookie
-  // set a cookie 
 
 
 
