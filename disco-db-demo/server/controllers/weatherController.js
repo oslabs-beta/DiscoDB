@@ -19,7 +19,7 @@ weatherController.getWeather = (req, res, next) => {
     return next();
   })
   .catch(err => {
-    return res.status(404).json(createResponse(true, 404, 'city not found'));
+    return res.status(404).json(createResponse(false, 404, 'city not found'));
     // return next(err);
   })
 }
