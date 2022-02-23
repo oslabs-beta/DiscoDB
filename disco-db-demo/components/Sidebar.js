@@ -22,7 +22,7 @@ const [noteArray, setNewNote] = useState([]);
 const sidebarArray = [];
 //On initial render, invoke useEffect to grab all notes on props pertaining to user.
 //Populate the notes in an array and update state to reflect.
-console.log(props.usernotes)
+// console.log(props)
   useEffect(() => {
     props.usernotes.forEach((ele) => {
     //usernote has entire object per note for user
@@ -95,7 +95,7 @@ console.log(props.usernotes)
       >
         <Toolbar />
         <Divider />
-        <Button variant="outlined" onClick={newNoteHandler}>New Note</Button>
+        <Button sx={{ mt: 3 }} variant="outlined" onClick={newNoteHandler}>New Note</Button>
         <Divider />
         <List>
           {noteArray}
