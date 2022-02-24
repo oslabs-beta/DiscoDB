@@ -16,7 +16,7 @@ export default function Notes(props) {
         <Typography paragraph>
           User Notes
         </Typography>
-        <NotesContainer data={props.data}/>
+        <NotesContainer data={props.data} setNewNote={props.setNewNote} noteArray={props.noteArray} setRefresh={props.setRefresh}/>
     </Box>
   )
 }

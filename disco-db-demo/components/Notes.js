@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
@@ -8,23 +8,28 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { useRouter } from 'next/router';
 
 export default function NotesContainer(props) {
-
+  const [setContent, setNewContent] = useState('');
+  const [setTitle, setNewTitle] = useState('');
   //grab query paramaters from note - work in progress
   const router = useRouter();
   let noteID = Object.keys(router.query)[0];
   let noteTitle;
   let noteContent;
 
-  // console.log(props);
+  for (let i = 0; i < props.data.length; i++) {
+    if (props.data[i]._id === noteID) {
+      noteTitle = props.data[i].title;
+      noteContent = props.data[i].content;
+    }
+  }
 
-  // for (let i = 0; i < props.data.length; i++) {
-  //   if (props.data[i]._id === noteID) {
-  //     noteTitle = props.data[i].title;
-  //     noteContent = props.data[i].content;
-  //   }
-  // }
 
-  console.log(noteTitle, noteContent);
+  useEffect(() => {
+    setNewContent(noteContent)
+    setNewTitle(noteTitle)
+  }, [noteContent]);
+
+  console.log('this is in the notes component ', props);
 
   const handleSave = (event) => {
     event.preventDefault();
@@ -35,7 +40,7 @@ export default function NotesContainer(props) {
 
     const saveBody = {
       //grab id from query params
-      _id: 'id',
+      _id: noteID,
       username: localStorage.user,
       title: noteTitle.value,
       content: noteContent.value,
@@ -55,7 +60,7 @@ export default function NotesContainer(props) {
     .then(data => {
       console.log('Success', data);
       //what do we do here on successful note update?
-
+      props.setRefresh(true);
     })
     .catch(err => console.log('Error', err))
   };
@@ -87,6 +92,7 @@ export default function NotesContainer(props) {
     .catch(err => console.log('Error', err))
   };
 
+  
   return (
     <Container component="main">
       <CssBaseline />
@@ -97,12 +103,14 @@ export default function NotesContainer(props) {
             <Box>
               <TextField
               fullWidth
-              defaultValue={noteTitle}
+              defaultValue={setTitle || ''}
               name="noteTitle"
+              multiline
+              rows={1}
               />
               <TextField
               fullWidth
-              defaultValue={noteContent}
+              defaultValue={setContent || ''}
               name="noteContent"
               multiline
               rows={8}

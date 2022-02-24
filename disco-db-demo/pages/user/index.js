@@ -6,6 +6,7 @@ import Layout from '../../components/layout';
 
 export default function User(props) {
   console.log(props);
+  
   return (
     <Box>
       <Typography paragraph>
