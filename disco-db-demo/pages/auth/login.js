@@ -47,7 +47,7 @@ export default function SignIn() {
     
     const testURL = '/api/hello';
     const devURL = '/auth/login';
-    fetch(testURL, {
+    fetch(devURL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -59,13 +59,12 @@ export default function SignIn() {
       console.log('Success', data);
       //get back response from backend to verify user authentication
       //if success, redirect user to user endpoint
-      if (!data.body.actionSuccess) {
+      if (!data.actionSuccess) {
         setAuth(false);
       } else {
         setAuth(true);
         //temp username to add to localStorage
-        const username = 'eric';
-        localStorage.setItem('user', username);
+        localStorage.setItem('user', loginBody.username);
         router.push('/user');
       }
 

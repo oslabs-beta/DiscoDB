@@ -2,7 +2,14 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController')
 
-router.get('/', 
+//commenting this out so nextjs routes to page without having to login/signup each time
+// router.get('/', 
+//   userController.getUserNotes,
+//   (req, res) => {
+//     return res.status(200).json(res.locals);
+// });
+
+router.get('/load', 
   userController.getUserNotes,
   (req, res) => {
     return res.status(200).json(res.locals);

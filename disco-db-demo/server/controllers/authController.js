@@ -1,6 +1,7 @@
 // const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const responseModel = require('../models/responseModel');
+//const responseModel = require('../models/responseModel');
+const { createResponse } = require('../models/responseModel');
 // require User object from db schema
 const { Users } = require('../models/model');
 
@@ -14,6 +15,7 @@ function encrypt(password) {
 const authController = {
   
   signup(req, res, next) {
+    console.log('this is in the authcontroller/signup: ', req.body)
     // encrypt password
     encrypt(req.body.password)
       .then(hash => {
@@ -34,6 +36,7 @@ const authController = {
   
   
   login(req, res, next) {
+    console.log('this is in the authcontroller/login', req.body);
     const { username, password } = req.body;
 
     Users.findOne({ username: username }, 
@@ -46,11 +49,11 @@ const authController = {
         const { password: hashedPassword } = result;
         bcrypt.compare(password, hashedPassword, (err, bcryptRes) => {
           if (bcryptRes) {
-            // console.log('passwords match!'); 
+             console.log('passwords match!'); 
             return next();
           } else {
-            // console.log('passwords do not match');  
-            return res.status(406).json(responseModel(false, 406, 'Wrong username and/or password'));
+             console.log('passwords do not match');  
+            return res.status(406).json(createResponse(false, 406, 'Wrong username and/or password'));
           }
         })
       });

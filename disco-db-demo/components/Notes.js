@@ -27,7 +27,7 @@ export default function NotesContainer(props) {
   useEffect(() => {
     setNewContent(noteContent)
     setNewTitle(noteTitle)
-  }, [noteContent]);
+  }, [noteID]);
 
   console.log('this is in the notes component ', props);
 
@@ -41,7 +41,6 @@ export default function NotesContainer(props) {
     const saveBody = {
       //grab id from query params
       _id: noteID,
-      username: localStorage.user,
       title: noteTitle.value,
       content: noteContent.value,
       updatedAt: Date.now(),
@@ -49,7 +48,7 @@ export default function NotesContainer(props) {
     
     const testURL = '/api/hello';
     const devURL = '/user/notes';
-    fetch(testURL, {
+    fetch(devURL, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
