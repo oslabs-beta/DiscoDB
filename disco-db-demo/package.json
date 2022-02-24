@@ -11,12 +11,13 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "bcrypt": "^5.0.1",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
     "@fontsource/roboto": "^4.5.3",
     "@mui/icons-material": "^5.4.2",
     "@mui/material": "^5.4.2",
+    "axios": "^0.26.0",
+    "bcrypt": "^5.0.1",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.0",
     "express": "^4.17.2",

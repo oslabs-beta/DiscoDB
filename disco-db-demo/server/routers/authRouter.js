@@ -4,10 +4,10 @@ const authController = require('../controllers/authController')
 const { createResponse } = require('../models/responseModel');
 
 // Do we need this? Or will it be handled by nextJS?
-router.get('/login', 
-  (req, res) => {
-    res.sendStatus(200);
-});
+// router.get('/login', 
+//   (req, res) => {
+//     res.sendStatus(200);
+// });
 
 // Authenticate user using bcrypt. Send error if not valid. Send session cookie once validated.
 router.post('/login',
@@ -18,10 +18,10 @@ router.post('/login',
 });
 
 // Do we need this? Or will it be handled by nextJS?
-router.get('/signup',  
-  (req, res) => {
-    return res.sendStatus(200);
-});
+// router.get('/signup',  
+//   (req, res) => {
+//     return res.sendStatus(200);
+// });
 
 // Checks if username is valid. Send error if not valid. Once successfully signed up, automatically logs in user and sends session cookie
 router.post('/signup', 

@@ -26,14 +26,14 @@ export default function Layout({ children }) {
 
   useEffect(() => {
     const testURL = '/api/hello';
-    const devURL = '/user';
+    const devURL = '/user/load';
 
-    fetch(testURL)
+    fetch(devURL)
     .then((res) => res.json())
     .then( (data) => {
       //Iterate thru retrived data and create a copy of each object into state array.
       console.log('this is in the layout useEffect: ', data);
-      data.body.forEach((ele) => {
+      data.data.forEach((ele) => {
         // const userNote = {...ele};
         console.log(ele);
         userNoteArr.push(ele);
@@ -53,8 +53,7 @@ export default function Layout({ children }) {
         <Box sx={{ display: 'flex'}}>
           <CssBaseline />
             <Navbar online={online} setOnline={setOnline}/>
-            {/* <Sidebar usernotes={userNoteArr}/> */}
-            <Sidebar setNewNote={setNewNote} noteArray={noteArray}/>
+            <Sidebar setNewNote={setNewNote} noteArray={noteArray} setRefresh={setRefresh}/>
             <Box component="main" sx={{ flexGrow: 1, p: 3, textAlign:'left' }}>
               <Toolbar />
                 {childrenWithProps}

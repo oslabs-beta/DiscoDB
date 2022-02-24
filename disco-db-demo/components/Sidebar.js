@@ -29,15 +29,16 @@ console.log('this is in sidebar.js', props.noteArray);
   useEffect(() => {
     props.noteArray.forEach((ele) => {
     //usernote has entire object per note for user
+    console.log(ele.title);
     const userNoteButton = <ListItem button id={ele._id} onClick={currNoteHandler}>
     <NotesIcon></NotesIcon>
-    <ListItemText primary={ele.title}/>
+    <ListItemText primary={ele.title || 'Untitled Note...'}/>
     </ListItem>
   //Convert each usernote into a button and push in array for useState.
     sidebarArray.push(userNoteButton);
     })
     setNewSidebar([sidebarArray])
-  }, [])
+  }, [props.noteArray])
 
   function newNoteHandler(){
     //POST request to user/notes with object of {username: username, createdAt: unix time}
@@ -45,12 +46,12 @@ console.log('this is in sidebar.js', props.noteArray);
     //Poplate note array with a new icon with unique ID
     const newNoteInfo = {
       //Placeholder username, need to replace 
-      username: "username",
+      username: localStorage.getItem('user'),
       createdAt: Date.now()
     }
     const testURL = '/api/hello';
     const devURL = '/user/notes';
-    fetch(testURL, {
+    fetch(devURL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -59,14 +60,17 @@ console.log('this is in sidebar.js', props.noteArray);
     })
     .then(res => res.json())
     .then((data) => {
-      // const uniqId = data.body._id;
-      const ranNum = Math.ceil(Math.random() * 10)
+      console.log('this is the response from NEW NOTE button', data);
+      const uniqId = data.data._id;
+      //random num for testing purposes
+      //const ranNum = Math.ceil(Math.random() * 10)
       const newNote = 
-          <ListItem button id={ranNum} onClick={currNoteHandler}>
+          <ListItem button id={uniqId} key={uniqId} onClick={currNoteHandler}>
             <NotesIcon></NotesIcon>
             <ListItemText primary="Untitled Note..."/>
           </ListItem>
           setNewSidebar([...setSidebar, newNote])
+          props.setRefresh(true);
     })
     .catch((err) => {return console.log('Error', err)});
 

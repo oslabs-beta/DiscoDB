@@ -48,7 +48,7 @@ export default function SignUp() {
     
     const testURL = '/api/hello';
     const devURL = '/auth/signup';
-    fetch(testURL, {
+    fetch(devURL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -60,13 +60,12 @@ export default function SignUp() {
       console.log('Success', data);
       //have backend send back response that user successfully created account
       //if success, redirect user to login page, else have them try again
-      if (!data.body.actionSuccess) {
+      if (!data.actionSuccess) {
         setAuth(false);
       } else {
         setAuth(true);
         //temp username to add to localStorage
-        const username = eric;
-        localStorage.setItem('user', username);
+        localStorage.setItem('user', signupBody.username);
         router.push('/user');
       }
     })
