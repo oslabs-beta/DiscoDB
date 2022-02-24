@@ -33,7 +33,7 @@ router.patch('/notes',
 router.delete('/notes', 
   userController.deleteNote,
   (req, res) => {
-    res.sendStatus(200);
+    res.status(200).json({});
 });
 
 module.exports = router
