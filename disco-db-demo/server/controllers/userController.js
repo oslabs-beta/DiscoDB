@@ -21,7 +21,7 @@ userController.getUserNotes = (req, res, next) => {
 userController.createAndGetNewNote = (req, res, next) => {
   const {username, createdAt} = req.body;
   console.log('Creating a new note for username: ', username)
-  Notes.create({username: [username], createdAt: createdAt})
+  Notes.create({username: [username], title: '', content: '', updatedAt: createdAt, createdAt: createdAt})
     .then(data => {
       console.log(data);
       res.locals.data = data;
