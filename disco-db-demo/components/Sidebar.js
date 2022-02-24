@@ -16,37 +16,42 @@ const drawerWidth = 240;
 
 export default function SideBar(props) {
 const router = useRouter();
-const [noteArray, setNewNote] = useState([]);
-// const [clickedNote, setClickedNote] = useState("");
+const [setSidebar, setNewSidebar] = useState([]);
 //Saves all notes as buttons for user on front-end for later access.
 const sidebarArray = [];
+const userNoteArr = [];
+
+console.log('this is in sidebar.js', props.noteArray);
+
 //On initial render, invoke useEffect to grab all notes on props pertaining to user.
 //Populate the notes in an array and update state to reflect.
-// console.log(props)
+
   useEffect(() => {
-    props.usernotes.forEach((ele) => {
+    props.noteArray.forEach((ele) => {
     //usernote has entire object per note for user
-    const userNoteButton = <ListItem button id={ele._id}>
+    console.log(ele.title);
+    const userNoteButton = <ListItem button id={ele._id} onClick={currNoteHandler}>
     <NotesIcon></NotesIcon>
-    <ListItemText primary={ele.title}/>
+    <ListItemText primary={ele.title || 'Untitled Note...'}/>
     </ListItem>
   //Convert each usernote into a button and push in array for useState.
     sidebarArray.push(userNoteButton);
     })
-    setNewNote([...sidebarArray])
-  }, [])
+    setNewSidebar([sidebarArray])
+  }, [props.noteArray])
 
   function newNoteHandler(){
     //POST request to user/notes with object of {username: username, createdAt: unix time}
     //Expect response of res.locals.data = {_id:id}
     //Poplate note array with a new icon with unique ID
     const newNoteInfo = {
-      username: "username",
-      createdAt: Math.round((new Date()).getTime() / 1000)
+      //Placeholder username, need to replace 
+      username: localStorage.getItem('user'),
+      createdAt: Date.now()
     }
     const testURL = '/api/hello';
     const devURL = '/user/notes';
-    fetch(testURL, {
+    fetch(devURL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -55,18 +60,21 @@ const sidebarArray = [];
     })
     .then(res => res.json())
     .then((data) => {
-      // const uniqId = data.data._id;
-      const ranNum = Math.ceil(Math.random() * 10)
+      console.log('this is the response from NEW NOTE button', data);
+      const uniqId = data.data._id;
+      //random num for testing purposes
+      //const ranNum = Math.ceil(Math.random() * 10)
       const newNote = 
-          <ListItem button id={ranNum} onClick={currNoteHandler}>
+          <ListItem button id={uniqId} key={uniqId} onClick={currNoteHandler}>
             <NotesIcon></NotesIcon>
             <ListItemText primary="Untitled Note..."/>
           </ListItem>
-      setNewNote([...noteArray, newNote])
+          setNewSidebar([...setSidebar, newNote])
+          props.setRefresh(true);
     })
     .catch((err) => {return console.log('Error', err)});
-  };
 
+  };
   //Click handler to obtain ID attribute and shallow route to the note.
   function currNoteHandler (e){
     const targetId = e.currentTarget.id
@@ -74,13 +82,7 @@ const sidebarArray = [];
   }
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
-      >
-      </AppBar>
+    <Box>
       <Drawer
         sx={{
           width: drawerWidth,
@@ -98,7 +100,7 @@ const sidebarArray = [];
         <Button sx={{ mt: 3 }} variant="outlined" onClick={newNoteHandler}>New Note</Button>
         <Divider />
         <List>
-          {noteArray}
+          {setSidebar}
         </List>
       </Drawer>
     </Box>
