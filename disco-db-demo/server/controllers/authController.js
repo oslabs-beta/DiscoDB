@@ -41,10 +41,15 @@ const authController = {
 
     Users.findOne({ username: username }, 
       (err, result) => {
+        
+        //if user not found, there is no error but result is set to null
+        //causing error when you try to destructure password from result
+        if (result === null) {
+          return res.status(406).json(createResponse(false, 406, 'Wrong username and/or password'));
+        }
         if(err) {
           return next(err);
         }
-
         // destructure hashedPassword and compare to user's inputed password
         const { password: hashedPassword } = result;
         bcrypt.compare(password, hashedPassword, (err, bcryptRes) => {

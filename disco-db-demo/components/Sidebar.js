@@ -30,7 +30,7 @@ console.log('this is in sidebar.js', props.noteArray);
     props.noteArray.forEach((ele) => {
     //usernote has entire object per note for user
     console.log(ele.title);
-    const userNoteButton = <ListItem button id={ele._id} onClick={currNoteHandler}>
+    const userNoteButton = <ListItem button id={ele._id} key={ele._id} onClick={currNoteHandler}>
     <NotesIcon></NotesIcon>
     <ListItemText primary={ele.title || 'Untitled Note...'}/>
     </ListItem>

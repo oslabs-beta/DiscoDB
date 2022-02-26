@@ -16,6 +16,7 @@ import Dexie from 'dexie';
     })
     return console.log('data added sucessfully', id);
   }
+  
   async function dexieQuery() {
     const someFriends = await db.notes
     .where('username').equals('test1234').toArray();

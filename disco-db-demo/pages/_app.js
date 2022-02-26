@@ -7,20 +7,20 @@ import { useEffect } from 'react';
 
 function MyApp({ Component, pageProps }) {
   // // // service worker
-  // useEffect(() => {
-  //   if("serviceWorker" in navigator) {
-  //     window.addEventListener("load", function () {
-  //      navigator.serviceWorker.register("/sw.js").then(
-  //         function (registration) {
-  //           console.log("Service Worker registration successful with scope: ", registration.scope);
-  //         },
-  //         function (err) {
-  //           console.log("Service Worker registration failed: ", err);
-  //         }
-  //       );
-  //     });
-  //   }
-  // }, [])
+  useEffect(() => {
+    if("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+       navigator.serviceWorker.register("/swCacheSite.js").then(
+          function (registration) {
+            console.log("Service Worker registration successful with scope: ", registration.scope);
+          },
+          function (err) {
+            console.log("Service Worker registration failed: ", err);
+          }
+        );
+      });
+    }
+  }, [])
 
   const getLayout = Component.getLayout || ((page) => page)
   return getLayout(<Component {...pageProps} />)
