@@ -45,7 +45,6 @@ export default function NotesContainer(props) {
             </Box>
   ]
 
-
   const handleSave = (event) => {
     event.preventDefault();
 
@@ -76,8 +75,27 @@ export default function NotesContainer(props) {
       //what do we do here on successful note update?
       props.setRefresh(true);
     })
-    .catch(err => console.log('Error', err))
-  };
+    .catch((err) => {
+      console.log('invoking bgs'); 
+      return backgroundSync(saveBody)
+    }
+  )};
+  //Save obj to an array in IDB {syncMessages: [...]}
+  //Checks to see if service workers have been registered and active.
+  //Registers the tag 'save-data' for background sync.
+  // const backgroundSync = () => {
+  //   navigator.serviceWorker.ready
+  //     .then((swRegistration) => {
+  //       console.log('registered sync sw')
+  //       return swRegistration.sync.register('save-data')})
+  //     .catch((err) => console.log('Error in BGS swRegistration:', err))
+  // }
+  async function backgroundSync(event) {
+    const registration = await navigator.serviceWorker.ready;
+    console.log('registered sync event')
+    await registration.sync.register('save-data');
+  }
+
 
   const handleDelete = (event) => {
     event.preventDefault();

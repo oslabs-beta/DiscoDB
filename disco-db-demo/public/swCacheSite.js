@@ -42,7 +42,12 @@ self.addEventListener('fetch', event => {
         })
         return response;
     })
-    .catch((err) => caches.match(event.request).then(response => response)))
+    .catch((err) => {
+      caches.match(event.request)
+        .then(response => {
+          return response})
+    }
+  ))
 });
 
 // self.addEventListener('fetch', event => {
@@ -66,3 +71,45 @@ self.addEventListener('fetch', event => {
 //     })
 //   );
 // });
+
+self.addEventListener('sync', (event) => {
+  if(event.tag === 'save-data'){
+    event.waitUntil(logHello());
+  }
+});
+
+function logHello () {
+  return console.log('hello')
+}
+
+function offlineSaveData(event){
+    const noteTitle = document.querySelector('[name="noteTitle"]');
+    const noteContent = document.querySelector('[name="noteContent"]');
+//Access indexedDB with mongodb ID
+//grab updated info and send to mongodb
+
+    const saveBody = {
+      //grab id from query params
+      // _id: props.noteID,
+      title: noteTitle.value,
+      content: noteContent.value,
+      updatedAt: Date.now(),
+    }
+    
+    const testURL = '/api/hello';
+    const devURL = '/user/notes';
+    fetch(devURL, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(saveBody),
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log('Success in saving offline', data);
+      //what do we do here on successful note update?
+      props.setRefresh(true);
+    })
+    .catch(err => console.log('Error in saving offline', err))
+}

@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 function MyApp({ Component, pageProps }) {
   // // // service worker
   useEffect(() => {
-    if("serviceWorker" in navigator) {
+    if("serviceWorker" in navigator && 'SyncManager' in window) {
       window.addEventListener("load", function () {
        navigator.serviceWorker.register("/swCacheSite.js").then(
           function (registration) {
