@@ -114,7 +114,7 @@ function offlineSaveData(event){
     .catch(err => console.log('Error in saving offline', err))
 }
 
-function accessIndexedDb () {
+function accessIndexedDb (data) {
   let db;
   //Create DB if doesn't exist, otherwise access it.
   const request = indexedDB.open('myDatabase')
@@ -122,15 +122,21 @@ function accessIndexedDb () {
   request.onerror = (event) => {
     console.log('Error in creating DB');
   }
-  request.onupgradeneeded = () => {
-    console.log('Created new object store')
-    request.createObjectStore('patch-request')
-    //create indexes in new object store
-   }
+  // request.onupgradeneeded = () => {
+  //   console.log('Created new object store')
+  //   request.createObjectStore('patch-request', {autoIncrement: true, keyPath: 'id'})
+  //   //create indexes in new object store
+  //   // store.createIndex('username', 'username', {unique: false});
+  //   // store.createIndex('_id', '_id', {unique: true});
+  //   // store.createIndex('title', 'title', {unique: false});
+  //   // store.createIndex('content', 'content', {unique: false});
+  //   // store.createIndex('createdAt', 'createdAt', {unique: false});
+  //   // store.createIndex('updatedAt', 'updatedAt', {unique: false});
+  //  }
   request.onsuccess = (event) => {
     db = event.target.result;
-    console.log('inside idb', db)
-    getData(db);
+    console.log('inside idb')
+    getData(db, data);
   }
 }
 
@@ -138,15 +144,16 @@ self.addEventListener('message', (event) => {
   console.log('patch note data', event.data.patchNote)
   if(event.data.hasOwnProperty('patchNote')){
     patchNote = event.data.patchNote
-    accessIndexedDb();
+    accessIndexedDb(patchNote);
   }
 })
 
-function getData (db) {
+function getData (db, data) {
   //Open a transaction into store 'patch-request' 
-  const transaction = db.transaction(['patch-request']);
-  const objectStore = transaction.objectStore('patch-request');
-  const request = objectStore.get('_id')
-  console.log('idb request', request)
+  const transaction = db.transaction(['patch_request'], 'readwrite');
+  const objectStore = transaction.objectStore('patch_request');
+  console.log('data passed by postmessage', data)
+  objectStore.add({url: '/user/notes', payload: data, method: 'PATCH'})
+  // console.log('idb request', request)
   //objectStore.put({key:value})
 }
