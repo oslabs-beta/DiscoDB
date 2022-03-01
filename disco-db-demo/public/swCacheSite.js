@@ -1,4 +1,5 @@
 //public/sw.js
+import { dexieQuery } from "./db.js";
 
 const cacheName = 'my-site-cache-v2';
 
@@ -29,9 +30,17 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   console.log('Fetch event for ', event.request);
   event.respondWith(
+    // console.log('inside event.respondWith')
     fetch(event.request)
     .then(response => {
-      //Make clone of response
+      // indexedDB logic
+      if (event.request.method === 'GET' && event.request.url === "http://localhost:3000/user/load"){
+        
+        console.log('logging response : ', response);
+        console.log('Intercepting server request to load user notes');
+        dexieQuery();
+    }
+      // Make clone of response
       const resClone = response.clone();
       //Open cache
       caches
@@ -42,7 +51,20 @@ self.addEventListener('fetch', event => {
         })
         return response;
     })
-    .catch((err) => caches.match(event.request).then(response => response)))
+    // if network is unavailable
+    .catch((err) => {
+      // intercept network request and store to indexedDB (background-sync?)
+      // concurrently, start making local changes to indexedDB
+      console.log('Network is unavailable, heading into catch block')
+      console.log('method: ',event.request.method);
+      console.log('url: ', event.request.url);
+      if (event.request.method === 'GET' && event.request.url === "http://localhost:3000/user/load"){
+         console.log('Intercepting server request to load user notes');
+
+      }
+      return caches.match(event.request)
+      .then(response => response)
+    }))
 });
 
 // self.addEventListener('fetch', event => {
