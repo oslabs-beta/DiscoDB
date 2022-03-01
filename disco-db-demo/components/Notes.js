@@ -75,9 +75,15 @@ export default function NotesContainer(props) {
       //what do we do here on successful note update?
       props.setRefresh(true);
     })
-    .catch((err) => {
+    .catch(async (err) => {
       console.log('invoking bgs'); 
-      return backgroundSync(saveBody)
+      //Sends failed patch object to service worker file.
+      const data = {
+        patchNote: {...saveBody}
+      }
+      console.log('data', data)
+      await navigator.serviceWorker.controller.postMessage(data);
+      // return backgroundSync(saveBody)
     }
   )};
   //Save obj to an array in IDB {syncMessages: [...]}

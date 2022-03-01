@@ -113,3 +113,40 @@ function offlineSaveData(event){
     })
     .catch(err => console.log('Error in saving offline', err))
 }
+
+function accessIndexedDb () {
+  let db;
+  //Create DB if doesn't exist, otherwise access it.
+  const request = indexedDB.open('myDatabase')
+  //Error handling
+  request.onerror = (event) => {
+    console.log('Error in creating DB');
+  }
+  request.onupgradeneeded = () => {
+    console.log('Created new object store')
+    request.createObjectStore('patch-request')
+    //create indexes in new object store
+   }
+  request.onsuccess = (event) => {
+    db = event.target.result;
+    console.log('inside idb', db)
+    getData(db);
+  }
+}
+
+self.addEventListener('message', (event) => {
+  console.log('patch note data', event.data.patchNote)
+  if(event.data.hasOwnProperty('patchNote')){
+    patchNote = event.data.patchNote
+    accessIndexedDb();
+  }
+})
+
+function getData (db) {
+  //Open a transaction into store 'patch-request' 
+  const transaction = db.transaction(['patch-request']);
+  const objectStore = transaction.objectStore('patch-request');
+  const request = objectStore.get('_id')
+  console.log('idb request', request)
+  //objectStore.put({key:value})
+}
