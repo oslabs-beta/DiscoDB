@@ -112,7 +112,11 @@ self.addEventListener('message', (event) => {
     accessIndexedDb(patchNote);
   }
 })
-
+function accessObjectStore (storeName, method) {
+  // const transaction = db.transaction([storeName], method);
+  // const objectStore = transaction.objectStore(storeName);
+  return db.transaction([storeName], method).objectStore(storeName)
+}
 function addData (db, data) {
   //Open a transaction into store 'patch-request' 
   const transaction = db.transaction(['patch_request'], 'readwrite');
@@ -124,18 +128,34 @@ function addData (db, data) {
 
 function syncDataToServer() {
   console.log('inside syncdata')
-  const dataArray = [];
-  const transaction = db.transaction(['patch_request'], 'readonly');
-  const objectStore = transaction.objectStore('patch_request');
-  const request = objectStore.openCursor();
+  // const transaction = db.transaction(['patch_request'], 'readwrite');
+  // const objectStore = transaction.objectStore('patch_request');
+  const store = accessObjectStore('patch_request', 'readwrite');
+  const request = store.getAll();
   request.onsuccess = async function (event) {
-    const cursor = event.target.result;
-    if(cursor) {
-      dataArray.push(cursor.value)
-      cursor.continue();
-    }else{
-      console.log(dataArray)
-    }
+    const failedRequests = event.target.result;
+    //comes back as an objs in array. 
+    // console.log(failedRequests)
+    failedRequests.forEach((data) => {
+      const url = data.url;
+      const method = data.method;
+      const body = JSON.stringify(data.payload)
+      const headers = {'Content-Type': 'application/json'};
+      fetch(url, {
+        method: method,
+        headers: headers,
+        body: body
+      })
+      .then((res) => res.json())
+      .then((res) => {
+        const newStore = accessObjectStore('patch_request', 'readwrite');
+        newStore.delete(data.id);
+      })
+      .catch((error) => {
+        console.error('Failed to sync data to server:', error);
+        throw error
+      })
+    })
   }
 
 }
