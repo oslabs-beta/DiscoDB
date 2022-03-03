@@ -1,4 +1,4 @@
-import Dexie from 'dexie';
+import Dexie from '../node_modules/dexie/dist/modern/dexie';
 
 const db = new Dexie('myDatabase');
 db.version(1).stores({

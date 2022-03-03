@@ -10,7 +10,7 @@ function MyApp({ Component, pageProps }) {
   useEffect(() => {
     if("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
-       navigator.serviceWorker.register("swCacheSite.js", {type: 'module'}).then(
+       navigator.serviceWorker.register("swCacheSite.js").then(
           function (registration) {
             console.log("Service Worker registration successful with scope: ", registration.scope);
           },

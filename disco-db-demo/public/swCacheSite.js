@@ -1,5 +1,5 @@
 //public/sw.js
-import { dexieQuery } from "./db.js";
+importScripts('https://cdn.jsdelivr.net/npm/dexie@3.2.1/dist/dexie.min.js')
 
 const cacheName = 'my-site-cache-v2';
 
@@ -38,7 +38,17 @@ self.addEventListener('fetch', event => {
         
         console.log('logging response : ', response);
         console.log('Intercepting server request to load user notes');
-        dexieQuery();
+        const db = new Dexie('myTestDatabase');
+          db.version(1).stores({
+            notes: '++id, _id',
+          });
+        async function dexieTest(_id) {
+          const id = await db.notes.add({
+            _id
+          })
+          return console.log('data added sucessfully', id);
+        }
+        dexieTest('test1')
     }
       // Make clone of response
       const resClone = response.clone();
@@ -88,3 +98,4 @@ self.addEventListener('fetch', event => {
 //     })
 //   );
 // });
+
