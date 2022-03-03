@@ -11,6 +11,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import NotesIcon from '@mui/icons-material/Notes';
 import { Button } from '@mui/material';
+import { dexieAdd } from '../public/db'
 
 const drawerWidth = 240;
 
@@ -62,6 +63,18 @@ console.log('this is in sidebar.js', props.noteArray);
     .then((data) => {
       console.log('this is the response from NEW NOTE button', data);
       const uniqId = data.data._id;
+
+      //testing - add new note to indexedDB
+      const testData = {
+        username: ['erictest02'],
+        _id: uniqId,
+        title: '',
+        content: '',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      }
+
+      dexieAdd(testData);
       //random num for testing purposes
       //const ranNum = Math.ceil(Math.random() * 10)
       const newNote = 
@@ -70,7 +83,7 @@ console.log('this is in sidebar.js', props.noteArray);
             <ListItemText primary="Untitled Note..."/>
           </ListItem>
           setNewSidebar([...setSidebar, newNote])
-          props.setRefresh(true);
+          //props.setRefresh(true);
     })
     .catch((err) => {return console.log('Error', err)});
 

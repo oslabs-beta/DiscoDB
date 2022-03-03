@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useRouter } from 'next/router';
+import { dexieUpdate, dexieDeleteOne } from '../public/db'
 
 export default function NotesContainer(props) {
   // const [setContent, setNewContent] = useState('');
@@ -74,7 +75,17 @@ export default function NotesContainer(props) {
     .then(data => {
       console.log('Success', data);
       //what do we do here on successful note update?
-      props.setRefresh(true);
+
+      //testing dexie update
+      const testData = {
+        id: props.noteID,
+        title: noteTitle.value,
+        content: noteContent.value,
+        updatedAt: Date.now()
+      }
+      dexieUpdate(props.noteID, testData);
+
+      //props.setRefresh(true);
     })
     .catch(err => console.log('Error', err))
   };
@@ -101,7 +112,11 @@ export default function NotesContainer(props) {
     .then(data => {
       console.log('Success', data);
       //should remove entry from array
-      props.setRefresh(true);
+
+      //testing - delete item from indexedDB
+      dexieDeleteOne(props.noteID);
+
+      //props.setRefresh(true);
     })
     .catch(err => console.log('Error', err))
   };

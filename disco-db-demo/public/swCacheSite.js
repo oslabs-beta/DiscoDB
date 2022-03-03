@@ -1,6 +1,7 @@
 //public/sw.js
+//import { dexieAdd } from './db';
 
-const cacheName = 'my-site-cache-v2';
+const cacheName = 'my-site-cache-v3';
 
 self.addEventListener('install', event => {
   console.log('Attempting to install service worker and cache static assets');

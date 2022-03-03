@@ -3,7 +3,7 @@ import Sidebar from './Sidebar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import Toolbar from '@mui/material/Toolbar';
-import { dexieTest, dexieQuery, dexieDelete } from './db'
+import { dexieAdd, dexieQuery, dexieDeleteAll } from '../public/db'
 import React, { useEffect, useState } from 'react';
 
 export default function Layout({ children }) {
@@ -32,23 +32,35 @@ export default function Layout({ children }) {
     .then((res) => res.json())
     .then( (data) => {
       //Iterate thru retrived data and create a copy of each object into state array.
-      console.log('this is in the layout useEffect: ', data);
-      console.log('username', localStorage.getItem('user'));
+
       // delete all user related data in indexDB using Dexie
       // need to revisit later to see if delete query works with multiple users in username array
-      dexieDelete([localStorage.getItem('user')]);
+      dexieDeleteAll([localStorage.getItem('user')]);
+
       data.data.forEach((ele) => {
-        // const userNote = {...ele};
-        console.log(ele);
+
         userNoteArr.push(ele);
         // add data to indexedDB using Dexie
         const { username, _id, title, content, createdAt, updatedAt } = ele
-        dexieTest(username, _id, title, content, createdAt, updatedAt);
+        dexieAdd(ele);
       });
         setNewNote(userNoteArr);
-        console.log('noteArray: ', noteArray);
+
         setLoading(false);
         setRefresh(false);
+
+        //test to add data into indexedDB
+        // const ranNum = Math.random() * 100000
+        // const testData = {
+        //   username: ['erictest02'],
+        //   _id: ranNum,
+        //   title: 'testDexieAdd',
+        //   content: 'testDexieAddContent',
+        //   createdAt: Date.now(),
+        //   updatedAt: Date.now(),
+        // }
+        // dexieAdd(testData);
+        dexieQuery([localStorage.getItem('user')]);
     })
     .catch((err) => console.log('Error in fetching data', err))
   }, [refresh]);
