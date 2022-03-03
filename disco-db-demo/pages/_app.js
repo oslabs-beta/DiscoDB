@@ -10,7 +10,11 @@ function MyApp({ Component, pageProps }) {
   useEffect(() => {
     if("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
+<<<<<<< HEAD
        navigator.serviceWorker.register("/swCacheSite.js", {type: 'module'}).then(
+=======
+       navigator.serviceWorker.register("swCacheSite.js").then(
+>>>>>>> young-IntegrateSW
           function (registration) {
             console.log("Service Worker registration successful with scope: ", registration.scope);
           },
@@ -18,6 +22,10 @@ function MyApp({ Component, pageProps }) {
             console.log("Service Worker registration failed: ", err);
           }
         );
+        // navigator.serviceWorker.ready.then(function(swRegistration) {
+        //   console.log('successfully requested a one time sync')
+        //   return swRegistration.sync.register('myFirstSync');
+        // });
       });
     }
   }, [])
