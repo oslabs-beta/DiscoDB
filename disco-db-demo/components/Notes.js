@@ -83,7 +83,7 @@ export default function NotesContainer(props) {
       }
       console.log('data', data)
       await navigator.serviceWorker.controller.postMessage(data);
-      // return backgroundSync(saveBody)
+      backgroundSync()
     }
   )};
   //Save obj to an array in IDB {syncMessages: [...]}
@@ -99,7 +99,7 @@ export default function NotesContainer(props) {
   async function backgroundSync(event) {
     const registration = await navigator.serviceWorker.ready;
     console.log('registered sync event')
-    await registration.sync.register('save-data');
+    await registration.sync.register('save_data');
   }
 
 

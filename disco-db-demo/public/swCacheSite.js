@@ -73,49 +73,14 @@ self.addEventListener('fetch', event => {
 // });
 
 self.addEventListener('sync', (event) => {
-  if(event.tag === 'save-data'){
-    event.waitUntil(logHello());
+  if(event.tag === 'save_data'){
+    event.waitUntil(syncDataToServer());
   }
 });
 
-function logHello () {
-  return console.log('hello')
-}
 
-function offlineSaveData(event){
-    const noteTitle = document.querySelector('[name="noteTitle"]');
-    const noteContent = document.querySelector('[name="noteContent"]');
-//Access indexedDB with mongodb ID
-//grab updated info and send to mongodb
-
-    const saveBody = {
-      //grab id from query params
-      // _id: props.noteID,
-      title: noteTitle.value,
-      content: noteContent.value,
-      updatedAt: Date.now(),
-    }
-    
-    const testURL = '/api/hello';
-    const devURL = '/user/notes';
-    fetch(devURL, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(saveBody),
-    })
-    .then(res => res.json())
-    .then(data => {
-      console.log('Success in saving offline', data);
-      //what do we do here on successful note update?
-      props.setRefresh(true);
-    })
-    .catch(err => console.log('Error in saving offline', err))
-}
-
+let db;
 function accessIndexedDb (data) {
-  let db;
   //Create DB if doesn't exist, otherwise access it.
   const request = indexedDB.open('myDatabase')
   //Error handling
@@ -136,7 +101,7 @@ function accessIndexedDb (data) {
   request.onsuccess = (event) => {
     db = event.target.result;
     console.log('inside idb')
-    getData(db, data);
+    addData(db, data);
   }
 }
 
@@ -148,12 +113,29 @@ self.addEventListener('message', (event) => {
   }
 })
 
-function getData (db, data) {
+function addData (db, data) {
   //Open a transaction into store 'patch-request' 
   const transaction = db.transaction(['patch_request'], 'readwrite');
   const objectStore = transaction.objectStore('patch_request');
-  console.log('data passed by postmessage', data)
   objectStore.add({url: '/user/notes', payload: data, method: 'PATCH'})
   // console.log('idb request', request)
   //objectStore.put({key:value})
+}
+
+function syncDataToServer() {
+  console.log('inside syncdata')
+  const dataArray = [];
+  const transaction = db.transaction(['patch_request'], 'readonly');
+  const objectStore = transaction.objectStore('patch_request');
+  const request = objectStore.openCursor();
+  request.onsuccess = async function (event) {
+    const cursor = event.target.result;
+    if(cursor) {
+      dataArray.push(cursor.value)
+      cursor.continue();
+    }else{
+      console.log(dataArray)
+    }
+  }
+
 }
