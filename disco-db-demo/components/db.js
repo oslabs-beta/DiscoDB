@@ -3,7 +3,7 @@ import Dexie from 'dexie';
   const db = new Dexie('myDatabase');
   db.version(1).stores({
     notes: '++id, _id, username, title, content, createdAt, updatedAt',
-    patch_request: '++id',
+    failed_requests: '++id',
   });
   
   async function dexieTest(username, _id, title, content, createdAt, updatedAt) {

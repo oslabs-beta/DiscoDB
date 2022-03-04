@@ -73,43 +73,43 @@ self.addEventListener('fetch', event => {
 // });
 
 self.addEventListener('sync', (event) => {
-  if(event.tag === 'save_data'){
+  if(event.tag === 'failed_requests'){
     event.waitUntil(syncDataToServer());
   }
 });
 
 
 let db;
-function accessIndexedDb (data) {
+function connectIndexedDb () {
   //Create DB if doesn't exist, otherwise access it.
   const request = indexedDB.open('myDatabase')
   //Error handling
   request.onerror = (event) => {
     console.log('Error in creating DB');
   }
-  // request.onupgradeneeded = () => {
-  //   console.log('Created new object store')
-  //   request.createObjectStore('patch-request', {autoIncrement: true, keyPath: 'id'})
-  //   //create indexes in new object store
-  //   // store.createIndex('username', 'username', {unique: false});
-  //   // store.createIndex('_id', '_id', {unique: true});
-  //   // store.createIndex('title', 'title', {unique: false});
-  //   // store.createIndex('content', 'content', {unique: false});
-  //   // store.createIndex('createdAt', 'createdAt', {unique: false});
-  //   // store.createIndex('updatedAt', 'updatedAt', {unique: false});
-  //  }
   request.onsuccess = (event) => {
     db = event.target.result;
-    console.log('inside idb')
-    addData(db, data);
+    console.log('conntected to indexeddb')
   }
 }
 
+connectIndexedDb();
+
 self.addEventListener('message', (event) => {
-  console.log('patch note data', event.data.patchNote)
   if(event.data.hasOwnProperty('patchNote')){
+    console.log('patch note data', event.data.patchNote)
     patchNote = event.data.patchNote
-    accessIndexedDb(patchNote);
+    patchData(patchNote);
+  }
+  if(event.data.hasOwnProperty('deleteNote')){
+    console.log('delete note data', event.data.deleteNote)
+    deleteNote = event.data.deleteNote
+    deleteData(deleteNote);
+  }
+  if(event.data.hasOwnProperty('postNote')){
+    console.log('post note data', event.data.postNote)
+    postNote = event.data.postNote
+    postNote(postNote);
   }
 })
 function accessObjectStore (storeName, method) {
@@ -117,20 +117,34 @@ function accessObjectStore (storeName, method) {
   // const objectStore = transaction.objectStore(storeName);
   return db.transaction([storeName], method).objectStore(storeName)
 }
-function addData (db, data) {
-  //Open a transaction into store 'patch-request' 
-  const transaction = db.transaction(['patch_request'], 'readwrite');
-  const objectStore = transaction.objectStore('patch_request');
-  objectStore.add({url: '/user/notes', payload: data, method: 'PATCH'})
-  // console.log('idb request', request)
-  //objectStore.put({key:value})
+function patchData (data) {
+  //Open a transaction into store 'failed-requests' 
+  // const transaction = db.transaction(['failed_requests'], 'readwrite');
+  // const objectStore = transaction.objectStore('failed_requests');
+  const store = accessObjectStore('failed_requests', 'readwrite')
+  // const dataCopy = {...data}
+  store.add({url: '/user/notes', payload: data, method: 'PATCH'})
+}
+
+function deleteData (data) {
+  //Open a transaction into store 'failed-requests' 
+  const store = accessObjectStore('failed_requests', 'readwrite')
+  // const dataCopy = {...data}
+  store.add({url: '/user/notes', payload: data, method: 'DELETE'})
+}
+
+function postData (data) {
+  //Open a transaction into store 'failed-requests' 
+  const store = accessObjectStore('failed_requests', 'readwrite')
+  // const dataCopy = {...data}
+  store.add({url: '/user/notes', payload: data, method: 'POST'})
 }
 
 function syncDataToServer() {
   console.log('inside syncdata')
   // const transaction = db.transaction(['patch_request'], 'readwrite');
   // const objectStore = transaction.objectStore('patch_request');
-  const store = accessObjectStore('patch_request', 'readwrite');
+  const store = accessObjectStore('failed_requests', 'readwrite');
   const request = store.getAll();
   request.onsuccess = async function (event) {
     const failedRequests = event.target.result;
@@ -140,6 +154,7 @@ function syncDataToServer() {
       const url = data.url;
       const method = data.method;
       const body = JSON.stringify(data.payload)
+      console.log('body in sync', body)
       const headers = {'Content-Type': 'application/json'};
       fetch(url, {
         method: method,
@@ -148,7 +163,7 @@ function syncDataToServer() {
       })
       .then((res) => res.json())
       .then((res) => {
-        const newStore = accessObjectStore('patch_request', 'readwrite');
+        const newStore = accessObjectStore('failed_requests', 'readwrite');
         newStore.delete(data.id);
       })
       .catch((error) => {

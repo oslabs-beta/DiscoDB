@@ -72,13 +72,27 @@ console.log('this is in sidebar.js', props.noteArray);
           setNewSidebar([...setSidebar, newNote])
           props.setRefresh(true);
     })
-    .catch((err) => {return console.log('Error', err)});
-
+    .catch(async (err) => {
+      console.log('invoking post bgs'); 
+      //Sends failed patch object to service worker file.
+      const data = {
+        postNote: {...newNoteInfo}
+      }
+      console.log('postnote data', data)
+      await navigator.serviceWorker.controller.postMessage(data);
+      backgroundSync()
+    });
   };
   //Click handler to obtain ID attribute and shallow route to the note.
   function currNoteHandler (e){
     const targetId = e.currentTarget.id
     router.push(`/user/notes?${targetId}`, undefined, {shallow: true});
+  }
+
+  async function backgroundSync(event) {
+    const registration = await navigator.serviceWorker.ready;
+    console.log('registered sync event')
+    await registration.sync.register('failed_requests');
   }
 
   return (

@@ -76,7 +76,7 @@ export default function NotesContainer(props) {
       props.setRefresh(true);
     })
     .catch(async (err) => {
-      console.log('invoking bgs'); 
+      console.log('invoking patch bgs'); 
       //Sends failed patch object to service worker file.
       const data = {
         patchNote: {...saveBody}
@@ -99,7 +99,7 @@ export default function NotesContainer(props) {
   async function backgroundSync(event) {
     const registration = await navigator.serviceWorker.ready;
     console.log('registered sync event')
-    await registration.sync.register('save_data');
+    await registration.sync.register('failed_requests');
   }
 
 
@@ -127,7 +127,16 @@ export default function NotesContainer(props) {
       //should remove entry from array
       props.setRefresh(true);
     })
-    .catch(err => console.log('Error', err))
+    .catch(async (err) => {
+      console.log('invoking delete bgs'); 
+      //Sends failed patch object to service worker file.
+      const data = {
+        deleteNote: {...deleteBody}
+      }
+      console.log('data', data)
+      await navigator.serviceWorker.controller.postMessage(data);
+      backgroundSync()
+    })
   };
 
   
