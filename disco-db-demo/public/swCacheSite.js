@@ -27,6 +27,8 @@ self.addEventListener('activate', event => {
       );
     })
   );
+  //Force SW to become avaiable to all pages.
+  event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener('fetch', event => {
@@ -107,15 +109,7 @@ self.addEventListener('fetch', event => {
 self.addEventListener('sync', (event) => {
   if(event.tag === 'failed_requests'){
     event.waitUntil(syncDataToServer())
-      // .catch((err) => {
-      //   //Client browser will retry failed syncs for a certain # of times
-      //   //Once met, lastChance updated to true and will stop auto-syncing attempts
-      //   if(event.lastChance){
-      //     console.log('Maximum sync retrys failed');
-      //   }
-      //   throw err
-      // }));
-  }
+  };
 });
 
 //Listens to when postMessage() is invoked in components and passes the received data into corresponding functions
