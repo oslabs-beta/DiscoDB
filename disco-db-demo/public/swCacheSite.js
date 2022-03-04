@@ -29,7 +29,7 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  console.log('Fetch event for ', event.request);
+  // console.log('Fetch event for ', event.request);
   event.respondWith(
     fetch(event.request)
     .then(response => {
@@ -45,7 +45,7 @@ self.addEventListener('fetch', event => {
         return response;
     })
     .catch((err) => {
-      caches.match(event.request)
+      return caches.match(event.request)
         .then(response => {
           return response})
     }
@@ -79,7 +79,15 @@ self.addEventListener('fetch', event => {
   //Then invoke syncData
 self.addEventListener('sync', (event) => {
   if(event.tag === 'failed_requests'){
-    event.waitUntil(syncDataToServer());
+    event.waitUntil(syncDataToServer())
+      // .catch((err) => {
+      //   //Client browser will retry failed syncs for a certain # of times
+      //   //Once met, lastChance updated to true and will stop auto-syncing attempts
+      //   if(event.lastChance){
+      //     console.log('Maximum sync retrys failed');
+      //   }
+      //   throw err
+      // }));
   }
 });
 

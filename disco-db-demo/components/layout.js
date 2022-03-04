@@ -27,7 +27,7 @@ export default function Layout({ children }) {
   useEffect(() => {
     const testURL = '/api/hello';
     const devURL = '/user/load';
-
+    console.log('Offline/online:', navigator.onLine)
     fetch(devURL)
     .then((res) => res.json())
     .then( (data) => {
