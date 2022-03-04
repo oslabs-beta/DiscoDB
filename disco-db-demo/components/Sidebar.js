@@ -74,7 +74,7 @@ console.log('this is in sidebar.js', props.noteArray);
         updatedAt: Date.now(),
       }
 
-      dexieAdd(testData);
+      //dexieAdd(testData);
       //random num for testing purposes
       //const ranNum = Math.ceil(Math.random() * 10)
       const newNote = 
@@ -83,7 +83,7 @@ console.log('this is in sidebar.js', props.noteArray);
             <ListItemText primary="Untitled Note..."/>
           </ListItem>
           setNewSidebar([...setSidebar, newNote])
-          //props.setRefresh(true);
+          props.setRefresh(true);
     })
     .catch((err) => {return console.log('Error', err)});
 

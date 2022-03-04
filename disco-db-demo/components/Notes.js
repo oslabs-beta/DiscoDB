@@ -83,9 +83,9 @@ export default function NotesContainer(props) {
         content: noteContent.value,
         updatedAt: Date.now()
       }
-      dexieUpdate(props.noteID, testData);
+      //dexieUpdate(props.noteID, testData);
 
-      //props.setRefresh(true);
+      props.setRefresh(true);
     })
     .catch(err => console.log('Error', err))
   };
@@ -114,9 +114,9 @@ export default function NotesContainer(props) {
       //should remove entry from array
 
       //testing - delete item from indexedDB
-      dexieDeleteOne(props.noteID);
+      //dexieDeleteOne(props.noteID);
 
-      //props.setRefresh(true);
+      props.setRefresh(true);
     })
     .catch(err => console.log('Error', err))
   };

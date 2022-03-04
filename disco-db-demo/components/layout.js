@@ -35,14 +35,14 @@ export default function Layout({ children }) {
 
       // delete all user related data in indexDB using Dexie
       // need to revisit later to see if delete query works with multiple users in username array
-      dexieDeleteAll([localStorage.getItem('user')]);
+      //dexieDeleteAll([localStorage.getItem('user')]);
 
       data.data.forEach((ele) => {
 
         userNoteArr.push(ele);
         // add data to indexedDB using Dexie
         const { username, _id, title, content, createdAt, updatedAt } = ele
-        dexieAdd(ele);
+        //dexieAdd(ele);
       });
         setNewNote(userNoteArr);
 
@@ -60,7 +60,7 @@ export default function Layout({ children }) {
         //   updatedAt: Date.now(),
         // }
         // dexieAdd(testData);
-        dexieQuery([localStorage.getItem('user')]);
+        //dexieQuery([localStorage.getItem('user')]);
     })
     .catch((err) => console.log('Error in fetching data', err))
   }, [refresh]);
