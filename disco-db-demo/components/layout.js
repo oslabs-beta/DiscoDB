@@ -3,7 +3,7 @@ import Sidebar from './Sidebar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import Toolbar from '@mui/material/Toolbar';
-import { dexieTest, dexieQuery, dexieDelete } from './db'
+import { dexieTest, dexieQuery, dexieDelete } from '../public/db'
 import React, { useEffect, useState } from 'react';
 
 export default function Layout({ children }) {

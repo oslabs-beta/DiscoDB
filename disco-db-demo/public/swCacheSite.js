@@ -1,4 +1,5 @@
 //public/sw.js
+importScripts('https://cdn.jsdelivr.net/npm/dexie@3.2.1/dist/dexie.min.js')
 
 const cacheName = 'my-site-cache-v2';
 //Variable to connect to indexedDB
@@ -31,9 +32,27 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   // console.log('Fetch event for ', event.request);
   event.respondWith(
+    // console.log('inside event.respondWith')
     fetch(event.request)
     .then(response => {
-      //Make clone of response
+      // indexedDB logic
+      if (event.request.method === 'GET' && event.request.url === "http://localhost:3000/user/load"){
+        
+        console.log('logging response : ', response);
+        console.log('Intercepting server request to load user notes');
+        const db = new Dexie('myTestDatabase');
+          db.version(1).stores({
+            notes: '++id, _id',
+          });
+        async function dexieTest(_id) {
+          const id = await db.notes.add({
+            _id
+          })
+          return console.log('data added sucessfully', id);
+        }
+        dexieTest('test1')
+    }
+      // Make clone of response
       const resClone = response.clone();
       //Open cache
       caches
@@ -44,12 +63,20 @@ self.addEventListener('fetch', event => {
         })
         return response;
     })
+    // if network is unavailable
     .catch((err) => {
+      // intercept network request and store to indexedDB (background-sync?)
+      // concurrently, start making local changes to indexedDB
+      console.log('Network is unavailable, heading into catch block')
+      console.log('method: ',event.request.method);
+      console.log('url: ', event.request.url);
+      if (event.request.method === 'GET' && event.request.url === "http://localhost:3000/user/load"){
+         console.log('Intercepting server request to load user notes');
+
+      }
       return caches.match(event.request)
-        .then(response => {
-          return response})
-    }
-  ))
+      .then(response => response)
+    }))
 });
 
 // self.addEventListener('fetch', event => {
