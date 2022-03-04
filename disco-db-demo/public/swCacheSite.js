@@ -1,9 +1,12 @@
 //public/sw.js
 //importScripts('https://cdn.jsdelivr.net/npm/dexie@3.2.1/dist/dexie.min.js');
-//import { openDB } from './indexedDB';
+// import { openDB } from './indexedDB.js';
+// const { version, databaseName, storeName, keyPath } = dbGlobals;
+// let { DB } = dbGlobals;
+// import { dbGlobals } from './dbGlobals.js';
 
 const cacheName = 'my-site-cache-v3';
-let DB = null;
+let DB;
 const version = 1;
 const databaseName = 'notesDB';
 const storeName = 'notesStore';
@@ -70,17 +73,22 @@ self.addEventListener('fetch', event => {
             console.log('this is the rescloneDB: ', data)
             //delete existing indexedDB data
             if (DB) {
+              console.log('invoking dbDeleteALL in if')
               dbDeleteAll();
             } else {
               openDB( () => {
+                console.log('invoking dbDeleteALL in else')
                 dbDeleteAll();
               })
             }
             //populate indexedDB here
             data.data.forEach( note => {
+              console.log('this is the note object: ', note);
               if (DB) {
+                console.log('invoking dbAdd in if')
                 dbAdd(note);
               } else {
+                console.log('invoking dbAdd in else')
                 openDB( () => {
                   dbAdd(note);
                 })
@@ -106,7 +114,7 @@ self.addEventListener('fetch', event => {
     }))
 });
 
-//open Database
+// //open Database
 function openDB (callback) {
   let req = indexedDB.open(databaseName, version);
   req.onerror = (err) => {
@@ -162,7 +170,7 @@ function dbDeleteAll() {
       console.log('transaction success');
     };
     let store = tx.objectStore(storeName);
-    req = store.clear();
+    const req = store.clear();
     req.onsuccess = (event) => {
       //will trigger tx.oncomplete
     };
