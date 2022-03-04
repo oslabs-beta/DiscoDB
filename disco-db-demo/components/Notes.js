@@ -76,32 +76,17 @@ export default function NotesContainer(props) {
       props.setRefresh(true);
     })
     .catch(async (err) => {
-      console.log('invoking patch bgs'); 
-      //Sends failed patch object to service worker file.
+      //On failed patch request, create a variable to hold failed data.
       const data = {
         patchNote: {...saveBody}
       }
-      console.log('data', data)
+      //Save the object on the service worker object (controller).
+      //postMessage() allows a service worker to send to client(window/worker)
+      //Once data has been sent, invoke sync
       await navigator.serviceWorker.controller.postMessage(data);
       backgroundSync()
     }
   )};
-  //Save obj to an array in IDB {syncMessages: [...]}
-  //Checks to see if service workers have been registered and active.
-  //Registers the tag 'save-data' for background sync.
-  // const backgroundSync = () => {
-  //   navigator.serviceWorker.ready
-  //     .then((swRegistration) => {
-  //       console.log('registered sync sw')
-  //       return swRegistration.sync.register('save-data')})
-  //     .catch((err) => console.log('Error in BGS swRegistration:', err))
-  // }
-  async function backgroundSync(event) {
-    const registration = await navigator.serviceWorker.ready;
-    console.log('registered sync event')
-    await registration.sync.register('failed_requests');
-  }
-
 
   const handleDelete = (event) => {
     event.preventDefault();
@@ -128,18 +113,25 @@ export default function NotesContainer(props) {
       props.setRefresh(true);
     })
     .catch(async (err) => {
-      console.log('invoking delete bgs'); 
-      //Sends failed patch object to service worker file.
+      //Sends failed delete object to service worker file.
       const data = {
         deleteNote: {...deleteBody}
       }
-      console.log('data', data)
+
+      //postMessage() allows a service worker to send to client(window/worker)
+      //Once data has been sent, invoke sync
       await navigator.serviceWorker.controller.postMessage(data);
       backgroundSync()
     })
   };
 
-  
+  //When invoked, checks if service workers have been registered and ready.
+  //Then it will register a sync event under 'failed_requests' tag.
+  async function backgroundSync(event) {
+    const registration = await navigator.serviceWorker.ready;
+    await registration.sync.register('failed_requests');
+  }
+
   return (
     <Container component="main">
       <CssBaseline />
