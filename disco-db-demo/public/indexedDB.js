@@ -104,17 +104,14 @@ function syncDataToServer() {
   request.onsuccess = function (event) {
     const httpQueue = event.target.result;
     //Comes back as an array of objects 
-    console.log('onsuccess', failedRequests)
-    //Iterate through saved failed HTTP requests and creates a format to recreate a Fetch Request.
+    //Iterate Queue store and initialize Fetch request
     httpQueue.forEach((data) => {
-      const url = data.url;
-      const method = data.method;
-      const body = JSON.stringify(data.body)
+      const { url, method, body } = data
       const headers = {'Content-Type': 'application/json'};
       fetch(url, {
         method: method,
         headers: headers,
-        body: body
+        body: JSON.stringify(body)
       })
       .then((res) => res.json())
       .then((res) => {
