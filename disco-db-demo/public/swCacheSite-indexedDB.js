@@ -48,9 +48,9 @@ self.addEventListener('activate', event => {
   event.waitUntil(self.clients.claim());
 });
 
-self.addEventListener('fetch', event => {
-  console.log('Fetch event for ', event.request);
-
+self.addEventListener('fetch', (event) => {
+  // console.log('Fetch event for ', event.request);
+  const bodyClone = event.request.clone();
   event.respondWith(
     // console.log('inside event.respondWith')
     fetch(event.request)
@@ -111,9 +111,15 @@ self.addEventListener('fetch', event => {
       console.log('Network is unavailable, heading into catch block')
       console.log('method: ',event.request.method);
       console.log('url: ', event.request.url);
-      if (event.request.method === 'DELETE' && event.request.url === "http://localhost:3000/user/load"){
+      if(event.request.method === 'DELETE' && event.request.url === "http://localhost:3000/user/load"){
          console.log('Intercepting server request to load user notes');
 
+      }
+      if(event.request.method === 'PATCH' && event.request.url === "http://localhost:3000/user/notes"){
+        bodyClone.json()
+          .then((data) => {
+            console.log('data in bodyclone error', data)
+          })
       }
       return caches.match(event.request)
       .then(response => response)
