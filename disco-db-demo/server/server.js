@@ -33,12 +33,12 @@ app.prepare().then(() => {
   server.use('/api', apiRouter);
 
   server.get('/', (req, res) => {
-    console.log('this is to the root endpoint');
+    // console.log('this is to the root endpoint');
     return handle(req, res);
   });
 
   server.all('*', (req, res) => {
-    console.log('this is a request to the server');
+    // console.log('this is a request to the server');
     return handle(req, res);
   });
 

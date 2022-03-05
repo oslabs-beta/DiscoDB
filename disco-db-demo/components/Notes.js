@@ -8,11 +8,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { useRouter } from 'next/router';
 
 export default function NotesContainer(props) {
-  // const [setContent, setNewContent] = useState('');
-  // const [setTitle, setNewTitle] = useState('');
-  //grab query paramaters from note - work in progress
-  // const router = useRouter();
-  // let noteID = Object.keys(router.query)[0];
+
 
   console.log('current setTitle: ',props.setTitle)
 
@@ -45,7 +41,6 @@ export default function NotesContainer(props) {
             </Box>
   ]
 
-
   const handleSave = (event) => {
     event.preventDefault();
 
@@ -74,10 +69,29 @@ export default function NotesContainer(props) {
     .then(data => {
       console.log('Success', data);
       //what do we do here on successful note update?
+
+      //testing dexie update
+      const testData = {
+        id: props.noteID,
+        title: noteTitle.value,
+        content: noteContent.value,
+        updatedAt: Date.now()
+      }
+
       props.setRefresh(true);
     })
-    .catch(err => console.log('Error', err))
-  };
+    .catch(async (err) => {
+      //On failed patch request, create a variable to hold failed data.
+      const data = {
+        patchNote: {...saveBody}
+      }
+      //Save the object on the service worker object (controller).
+      //postMessage() allows a service worker to send to client(window/worker)
+      //Once data has been sent, invoke sync
+      await navigator.serviceWorker.controller.postMessage(data);
+      backgroundSync()
+    }
+  )};
 
   const handleDelete = (event) => {
     event.preventDefault();
@@ -101,12 +115,29 @@ export default function NotesContainer(props) {
     .then(data => {
       console.log('Success', data);
       //should remove entry from array
+
       props.setRefresh(true);
     })
-    .catch(err => console.log('Error', err))
+    .catch(async (err) => {
+      //Sends failed delete object to service worker file.
+      const data = {
+        deleteNote: {...deleteBody}
+      }
+
+      //postMessage() allows a service worker to send to client(window/worker)
+      //Once data has been sent, invoke sync
+      await navigator.serviceWorker.controller.postMessage(data);
+      backgroundSync()
+    })
   };
 
-  
+  //When invoked, checks if service workers have been registered and ready.
+  //Then it will register a sync event under 'failed_requests' tag.
+  async function backgroundSync(event) {
+    const registration = await navigator.serviceWorker.ready;
+    await registration.sync.register('failed_requests');
+  }
+
   return (
     <Container component="main">
       <CssBaseline />

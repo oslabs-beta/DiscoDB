@@ -8,9 +8,9 @@ import { useEffect } from 'react';
 function MyApp({ Component, pageProps }) {
   // // // service worker
   useEffect(() => {
-    if("serviceWorker" in navigator) {
+    if("serviceWorker" in navigator && 'SyncManager' in window) {
       window.addEventListener("load", function () {
-       navigator.serviceWorker.register("/swCacheSite.js").then(
+       navigator.serviceWorker.register("../swCacheSite-indexedDB.js", {type: 'module', scope: '/'}).then(
           function (registration) {
             console.log("Service Worker registration successful with scope: ", registration.scope);
           },
@@ -18,9 +18,15 @@ function MyApp({ Component, pageProps }) {
             console.log("Service Worker registration failed: ", err);
           }
         );
+        // navigator.serviceWorker.ready.then(function(swRegistration) {
+        //   console.log('successfully requested a one time sync')
+        //   return swRegistration.sync.register('myFirstSync');
+        // });
       });
     }
   }, [])
+
+  
 
   const getLayout = Component.getLayout || ((page) => page)
   return getLayout(<Component {...pageProps} />)
