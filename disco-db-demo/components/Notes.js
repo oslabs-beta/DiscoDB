@@ -2,10 +2,8 @@ import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import CssBaseline from '@mui/material/CssBaseline';
-import { useRouter } from 'next/router';
 
 export default function NotesContainer(props) {
 
@@ -82,15 +80,6 @@ export default function NotesContainer(props) {
     })
     .catch((err) => {
       console.log('Error in deleting notes:', err)
-      //On failed patch request, create a variable to hold failed data.
-      // const data = {
-      //   patchNote: {...saveBody}
-      // }
-      // //Save the object on the service worker object (controller).
-      // //postMessage() allows a service worker to send to client(window/worker)
-      // //Once data has been sent, invoke sync
-      // await navigator.serviceWorker.controller.postMessage(data);
-      // backgroundSync()
     }
   )};
 
@@ -121,24 +110,8 @@ export default function NotesContainer(props) {
     })
     .catch((err) => {
       console.log('Error in deleting notes:', err)
-      //Sends failed delete object to service worker file.
-      // const data = {
-      //   deleteNote: {...deleteBody}
-      // }
-
-      // //postMessage() allows a service worker to send to client(window/worker)
-      // //Once data has been sent, invoke sync
-      // await navigator.serviceWorker.controller.postMessage(data);
-      // backgroundSync()
     })
   };
-
-  //When invoked, checks if service workers have been registered and ready.
-  //Then it will register a sync event under 'failed_requests' tag.
-  // async function backgroundSync(event) {
-  //   const registration = await navigator.serviceWorker.ready;
-  //   await registration.sync.register('failed_requests');
-  // }
 
   return (
     <Container component="main">

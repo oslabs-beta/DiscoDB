@@ -1,6 +1,6 @@
 //public/sw.js
 //importScripts('https://cdn.jsdelivr.net/npm/dexie@3.2.1/dist/dexie.min.js');
-import { openDB, dbAdd, dbDeleteAll, patchData, deleteData, postData, syncDataToServer, dbGlobals } from './indexedDB.js';
+import { openDB, dbAdd, dbDeleteAll, addToSyncQueue, syncDataToServer, dbGlobals } from './indexedDB.js';
 // const { version, databaseName, storeName, keyPath } = dbGlobals;
 // let { DB } = dbGlobals;
 // import { dbGlobals } from './dbGlobals.js';
@@ -51,6 +51,8 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', (event) => {
   // console.log('Fetch event for ', event.request);
   const bodyClone = event.request.clone();
+  const { url, method } = event.request;
+
   event.respondWith(
     // console.log('inside event.respondWith')
     fetch(event.request)
@@ -66,7 +68,7 @@ self.addEventListener('fetch', (event) => {
           //Add response to cache
           cache.put(event.request, resCloneCache);
         })
-        if (event.request.method === 'GET' && event.request.url === "http://localhost:3000/user/load") {
+        if (method === 'GET' && url === "http://localhost:3000/user/load") {
           resCloneDB.json().then(data => {
             console.log('this is the rescloneDB: ', data)
             console.log('retrieving value of DB:', dbGlobals.DB);
@@ -109,36 +111,46 @@ self.addEventListener('fetch', (event) => {
       // intercept network request and store to indexedDB (background-sync?)
       // concurrently, start making local changes to indexedDB
       console.log('Network is unavailable, heading into catch block')
-      console.log('method: ',event.request.method);
-      console.log('url: ', event.request.url);
-      if(event.request.method === 'DELETE' && event.request.url === "http://localhost:3000/user/load"){
+      console.log('method: ',method);
+      console.log('url: ', url);
+      if(method === 'DELETE' && url === "http://localhost:3000/user/load"){
          console.log('Intercepting server request to load user notes');
 
       }
-      if(event.request.method === 'DELETE' && event.request.url === "http://localhost:3000/user/notes"){
+      if(method === 'DELETE' && url === "http://localhost:3000/user/notes"){
         bodyClone.json()
           .then((data) => {
-            console.log('Failed delete data', data)
             const reqBody = {
-              url: event.request.url,
-              method: event.request.method,
+              url: url,
+              method: method,
               body: data
             };
             backgroundSync();
-            deleteData(reqBody);
+            addToSyncQueue(reqBody);
           })
       }
-      if(event.request.method === 'PATCH' && event.request.url === "http://localhost:3000/user/notes"){
+      if(method === 'PATCH' && url === "http://localhost:3000/user/notes"){
         bodyClone.json()
           .then((data) => {
-            console.log('Failed patch data', data)
             const reqBody = {
-              url: event.request.url,
-              method: event.request.method,
+              url: url,
+              method: method,
               body: data
             };
             backgroundSync();
-            patchData(reqBody);
+            addToSyncQueue(reqBody);
+          })
+      }
+      if(method === 'POST' && url === "http://localhost:3000/user/notes"){
+        bodyClone.json()
+          .then((data) => {
+            const reqBody = {
+              url: url,
+              method: method,
+              body: data
+            };
+            backgroundSync();
+            addToSyncQueue(reqBody);
           })
       }
       return caches.match(event.request)
@@ -152,43 +164,13 @@ self.addEventListener('fetch', (event) => {
   //Then invoke syncData
 self.addEventListener('sync', (event) => {
   if(event.tag === 'failed_requests'){
-    console.log('sync fired off')
     event.waitUntil(syncDataToServer())
   };
 });
 
 
-//Listens to when postMessage() is invoked in components and passes the received data into corresponding functions
-// self.addEventListener('message', (event) => {
-//   if(event.data.hasOwnProperty('patchNote')){
-//     const patchNote = event.data.patchNote
-//     patchData(patchNote);
-//   }
-//   if(event.data.hasOwnProperty('deleteNote')){
-//     const deleteNote = event.data.deleteNote
-//     deleteData(deleteNote);
-//   }
-//   if(event.data.hasOwnProperty('postNote')){
-//     const postNote = event.data.postNote
-//     postData(postNote);
-//   }
-// });
-
   //When invoked, checks if service workers have been registered and ready.
   //Then it will register a sync event under 'failed_requests' tag.
-  // function backgroundSync() {
-  //   navigator.serviceWorker.ready
-  //     .then((registration) => {
-  //       console.log('Sync Registration')
-  //       return registration.sync.register('failed_requests');
-  //     })
-  //       .then(() => {
-  //         return console.log('Sync event registered')
-  //     })
-  //       .catch(() => {
-  //         return console.log('Unable to register sync event')
-  //       })
-  // }
   function backgroundSync() {
     registration.sync.register('failed_requests')
       .then(() => {

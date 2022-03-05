@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
@@ -19,7 +17,6 @@ const router = useRouter();
 const [setSidebar, setNewSidebar] = useState([]);
 //Saves all notes as buttons for user on front-end for later access.
 const sidebarArray = [];
-const userNoteArr = [];
 
 console.log('this is in sidebar.js', props.noteArray);
 
@@ -71,27 +68,14 @@ console.log('this is in sidebar.js', props.noteArray);
           setNewSidebar([...setSidebar, newNote])
           props.setRefresh(true);
     })
-    .catch(async (err) => {
-      console.log('invoking post bgs'); 
-      //Sends failed patch object to service worker file.
-      const data = {
-        postNote: {...newNoteInfo}
-      }
-      console.log('postnote data', data)
-      await navigator.serviceWorker.controller.postMessage(data);
-      backgroundSync()
+    .catch((err) => {
+      console.log('Error in creating new note:', err)
     });
   };
   //Click handler to obtain ID attribute and shallow route to the note.
   function currNoteHandler (e){
     const targetId = e.currentTarget.id
     router.push(`/user/notes?${targetId}`, undefined, {shallow: true});
-  }
-
-  async function backgroundSync(event) {
-    const registration = await navigator.serviceWorker.ready;
-    console.log('registered sync event')
-    await registration.sync.register('failed_requests');
   }
 
   return (
