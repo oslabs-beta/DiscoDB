@@ -1,10 +1,11 @@
 import Dexie from 'dexie';
 import { useLiveQuery } from 'dexie-react-hooks';
 
-  const db = new Dexie('myDatabase01');
-  db.version(0.1).stores({
-    notes: '_id, username, title, content, createdAt, updatedAt',
-  });
+const db = new Dexie('myDatabase');
+db.version(1).stores({
+  notes: '++id, _id, username, title, content, createdAt, updatedAt',
+  failed_requests: '++id',
+});
 
   async function dexieAdd(dataObject) {
     const id = await db.notes.add(dataObject)

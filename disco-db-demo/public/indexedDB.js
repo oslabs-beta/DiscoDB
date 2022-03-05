@@ -1,18 +1,4 @@
-// let DB = null;
-// const version = 1;
-// const databaseName = 'notesDB';
-// const storeName = 'notesStore';
-// const keyPath = '_id';
 
-// const dbGlobals = {
-//   DB: null,
-//   version: 1,
-//   databaseName: 'notesDB',
-//   storeName: 'notesStore',
-//   keyPath: '_id'
-// }
-
-import dbGlobals from './dbGlobals';
 
 //open Database
 function openDB (callback) {

@@ -27,7 +27,6 @@ export default function Layout({ children }) {
   useEffect(() => {
     const testURL = '/api/hello';
     const devURL = '/user/load';
-
     fetch(devURL)
     .then((res) => res.json())
     .then( (data) => {

@@ -7,9 +7,10 @@
 
 const cacheName = 'my-site-cache-v3';
 let DB;
-const version = 1;
+const version = 7;
 const databaseName = 'notesDB';
 const storeName = 'notesStore';
+const failed_requests = 'failed_requests';
 const keyPath = '_id';
 
 self.addEventListener('install', event => {
@@ -39,20 +40,13 @@ self.addEventListener('activate', event => {
       })
     })
   );
+  //Force SW to become available to all pages
+  event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener('fetch', event => {
   console.log('Fetch event for ', event.request);
 
-  //intercept request to /user/load
-  // if (event.request.method === 'GET' && event.request.url === "http://localhost:3000/user/load") {
-  //   fetch(event.request)
-  //   .then(response => response.json)
-  //   .then(data => {
-  //     //this should be the array
-  //     console.log('data from the /user/load endpoint: ', data);
-  //   })
-  // }
   event.respondWith(
     // console.log('inside event.respondWith')
     fetch(event.request)
@@ -105,7 +99,7 @@ self.addEventListener('fetch', event => {
       console.log('Network is unavailable, heading into catch block')
       console.log('method: ',event.request.method);
       console.log('url: ', event.request.url);
-      if (event.request.method === 'GET' && event.request.url === "http://localhost:3000/user/load"){
+      if (event.request.method === 'DELETE' && event.request.url === "http://localhost:3000/user/load"){
          console.log('Intercepting server request to load user notes');
 
       }
@@ -113,6 +107,60 @@ self.addEventListener('fetch', event => {
       .then(response => response)
     }))
 });
+
+
+//When back online, listener will be invoked.
+//WaitUntil: waits for service workers until promise resolves
+  //Then invoke syncData
+  self.addEventListener('sync', (event) => {
+    if(event.tag === 'failed_requests'){
+      event.waitUntil(syncDataToServer())
+    };
+  });
+
+
+//Listens to when postMessage() is invoked in components and passes the received data into corresponding functions
+self.addEventListener('message', (event) => {
+  if(event.data.hasOwnProperty('patchNote')){
+    const patchNote = event.data.patchNote
+    patchData(patchNote);
+  }
+  if(event.data.hasOwnProperty('deleteNote')){
+    const deleteNote = event.data.deleteNote
+    deleteData(deleteNote);
+  }
+  if(event.data.hasOwnProperty('postNote')){
+    const postNote = event.data.postNote
+    postData(postNote);
+  }
+});
+
+//Function to Access specific object store in IDB database and start a transaction
+function accessObjectStore (storeName, method) {
+  return DB.transaction([storeName], method).objectStore(storeName)
+};
+
+
+function patchData (data) {
+  //Open a transaction into store 'failed-requests' 
+  //Saves the persisting data in payload key
+  //URL and method to match type of request
+  const store = accessObjectStore(failed_requests, 'readwrite')
+  store.add({url: '/user/notes', payload: data, method: 'PATCH'})
+}
+
+function deleteData (data) {
+  //Open a transaction into store 'failed-requests' 
+  const store = accessObjectStore(failed_requests, 'readwrite')
+  store.add({url: '/user/notes', payload: data, method: 'DELETE'})
+}
+
+function postData (data) {
+  //Open a transaction into store 'failed-requests' 
+  const store = accessObjectStore(failed_requests, 'readwrite')
+  store.add({url: '/user/notes', payload: data, method: 'POST'})
+}
+
 
 // //open Database
 function openDB (callback) {
@@ -123,17 +171,25 @@ function openDB (callback) {
     DB = null;
   };
   req.onupgradeneeded = (event) => {
+    console.log('db upgraded');
     let db = event.target.result;
     if (!db.objectStoreNames.contains(storeName)) {
       db.createObjectStore(storeName, {
         keyPath: keyPath,
       });
     }
+    if (!db.objectStoreNames.contains(failed_requests)) {
+      console.log('Creating failed_request store')
+      db.createObjectStore(failed_requests, {
+        keyPath: 'id', autoIncrement: true,
+      })
+    }
   };
+
   req.onsuccess = (event) => {
     DB = event.target.result;
     //dbDeleteAll();
-    console.log('db opened and upgraded', DB);
+    console.log('db opened', DB);
     if (callback) {
       callback();
     }
@@ -184,3 +240,38 @@ function dbDeleteAll() {
 //   .where('username').equals(username).toArray();
 //   return console.log('here is the data: ', someFriends);
 // }
+
+//Function to sync offline requests to database when client is back online
+function syncDataToServer() {
+  //Create transaction to object store and grab all objects in an ordered array by ID.
+  const store = accessObjectStore(failed_requests, 'readwrite');
+  const request = store.getAll();
+
+  request.onsuccess = async function (event) {
+    const failedRequests = event.target.result;
+    //Comes back as an array of objects 
+    //Iterate through saved failed HTTP requests and creates a format to recreate a Fetch Request.
+    failedRequests.forEach((data) => {
+      const url = data.url;
+      const method = data.method;
+      const body = JSON.stringify(data.payload)
+      const headers = {'Content-Type': 'application/json'};
+      fetch(url, {
+        method: method,
+        headers: headers,
+        body: body
+      })
+      .then((res) => res.json())
+      .then((res) => {
+        //Previous transaction was closed due to getAll()
+        //Reopen object store and delete the corresponding object on successful HTTP request
+        const newStore = accessObjectStore(failed_requests, 'readwrite');
+        newStore.delete(data.id);
+      })
+      .catch((error) => {
+        console.error('Failed to sync data to server:', error);
+        throw error
+      })
+    });
+  }
+}
