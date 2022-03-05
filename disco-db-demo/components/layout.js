@@ -33,7 +33,7 @@ export default function Layout({ children }) {
     .then((res) => res.json())
     .then( (data) => {
       //Iterate thru retrived data and create a copy of each object into state array.
-
+      console.log('this is the response from the backend /user/load endpoint: ', data);
       data.data.forEach((ele) => {
 
         userNoteArr.push(ele);

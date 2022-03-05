@@ -83,6 +83,32 @@ function dbDeleteAll() {
   }
 };
 
+function dbGetAll() {
+  return new Promise( (resolve, reject) => {
+    if (dbGlobals.DB) {
+      let tx = dbGlobals.DB.transaction(dbGlobals.storeName, 'readonly');
+      tx.onerror = (err) => {
+        console.log('failed transaction');
+        reject(err);
+      };
+      tx.oncomplete = (event) => {
+        console.log('transaction success, this is the transaction event: ', event);
+        // console.log('this is the scoped variable data, still in the transaction complete: ', data);
+
+      };
+      let store = tx.objectStore(dbGlobals.storeName);
+      const req = store.getAll();
+      console.log('this is inside the dbGetAll function: ', req);
+      req.onsuccess = (event) => {
+        //will trigger tx.oncomplete
+        resolve(event.target.result);
+      };
+    } else {
+      console.log('DB is closed');
+    }
+  })
+}
+
 //Function to Access specific object store in IDB database and start a transaction
 function accessObjectStore (storeName, method) {
   return dbGlobals.DB.transaction([storeName], method).objectStore(storeName)
@@ -143,4 +169,4 @@ function syncDataToServer() {
   }
 };
 
-export { openDB, dbAdd, dbDeleteAll, patchData, deleteData, postData, syncDataToServer, dbGlobals }
+export { openDB, dbAdd, dbDeleteAll, patchData, deleteData, postData, syncDataToServer, dbGetAll, dbGlobals }

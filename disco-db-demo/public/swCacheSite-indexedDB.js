@@ -1,6 +1,6 @@
 //public/sw.js
 //importScripts('https://cdn.jsdelivr.net/npm/dexie@3.2.1/dist/dexie.min.js');
-import { openDB, dbAdd, dbDeleteAll, patchData, deleteData, postData, syncDataToServer, dbGlobals } from './indexedDB.js';
+import { openDB, dbAdd, dbDeleteAll, patchData, deleteData, postData, syncDataToServer, dbGetAll, dbGlobals } from './indexedDB.js';
 // const { version, databaseName, storeName, keyPath } = dbGlobals;
 // let { DB } = dbGlobals;
 // import { dbGlobals } from './dbGlobals.js';
@@ -49,7 +49,8 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  console.log('Fetch event for ', event.request);
+  //console.log('Fetch event for ', event.request);
+  const reqClone = event.request.clone();
 
   event.respondWith(
     // console.log('inside event.respondWith')
@@ -79,22 +80,17 @@ self.addEventListener('fetch', event => {
             // console.log(testFunc());
             //delete existing indexedDB data
             if (DB) {
-              console.log('invoking dbDeleteALL in if')
               dbDeleteAll();
             } else {
               openDB( () => {
-                console.log('invoking dbDeleteALL in else')
                 dbDeleteAll();
               })
             }
             //populate indexedDB here
             data.data.forEach( note => {
-              console.log('this is the note object: ', note);
               if (DB) {
-                console.log('invoking dbAdd in if')
                 dbAdd(note);
               } else {
-                console.log('invoking dbAdd in else')
                 openDB( () => {
                   dbAdd(note);
                 })
@@ -106,13 +102,45 @@ self.addEventListener('fetch', event => {
     })
     // if network is unavailable
     .catch((err) => {
+      console.log('this is DB Globals in catch block: ', dbGlobals.DB);
+      DB = dbGlobals.DB
       // intercept network request and store to indexedDB (background-sync?)
       // concurrently, start making local changes to indexedDB
       console.log('Network is unavailable, heading into catch block')
-      console.log('method: ',event.request.method);
-      console.log('url: ', event.request.url);
-      if (event.request.method === 'DELETE' && event.request.url === "http://localhost:3000/user/load"){
-         console.log('Intercepting server request to load user notes');
+      console.log('is the req Clone available in catch block? ', reqClone);
+      if (event.request.method === 'DELETE' && event.request.url === "http://localhost:3000/user/notes"){
+        console.log('Intercepting server request to load user notes');
+
+      }
+      if (event.request.method === 'PATCH' && event.request.url === "http://localhost:3000/user/notes"){
+        console.log('Intercepting server request to load user notes');
+        reqClone.json().then( data => {
+          console.log('this is the data inside the catch block from the reqClone: ', data);
+          //if this if conditional is met, patch the note inside indexedDB
+          //this block should add body to action queue
+
+        })
+      }
+
+      if (event.request.method === 'GET' && event.request.url === "http://localhost:3000/user/load"){
+        console.log('Intercepting server request to load user notes');
+        //get all the data from indexedDB and serve custom response to the client
+        if (DB) {
+          dbGetAll().then((data) => {
+            const responseBody = {data: data};
+            const IDBData = new Response(JSON.stringify(responseBody));
+            return IDBData;
+          })
+        } else {
+          openDB( () => {
+            console.log('invoking dbGetAll in else')
+            dbGetAll().then((data) => {
+              const responseBody = {data: data};
+              const IDBData = new Response(JSON.stringify(responseBody));
+              return IDBData;
+            });
+          })
+        }
 
       }
       return caches.match(event.request)
@@ -146,87 +174,3 @@ self.addEventListener('message', (event) => {
     postData(postNote);
   }
 });
-
-
-
-
-// //open Database
-// function openDB (callback) {
-//   let req = indexedDB.open(databaseName, version);
-//   req.onerror = (err) => {
-//     //could not open db
-//     console.log('Error: ', err);
-//     DB = null;
-//   };
-//   req.onupgradeneeded = (event) => {
-//     console.log('db upgraded');
-//     let db = event.target.result;
-//     if (!db.objectStoreNames.contains(storeName)) {
-//       db.createObjectStore(storeName, {
-//         keyPath: keyPath,
-//       });
-//     }
-//     if (!db.objectStoreNames.contains(failed_requests)) {
-//       console.log('Creating failed_request store')
-//       db.createObjectStore(failed_requests, {
-//         keyPath: 'id', autoIncrement: true,
-//       })
-//     }
-//   };
-
-//   req.onsuccess = (event) => {
-//     DB = event.target.result;
-//     //dbDeleteAll();
-//     console.log('db opened', DB);
-//     if (callback) {
-//       callback();
-//     }
-//   };
-// };
-
-// function dbAdd(dataObject) {
-//   if (dataObject && DB) {
-//     let tx = DB.transaction(storeName, 'readwrite');
-//     tx.onerror = (err) => {
-//       console.log('failed transaction');
-//     };
-//     tx.oncomplete = (event) => {
-//       console.log('data saved successfully');
-//     };
-//     let store = tx.objectStore(storeName);
-//     let req = store.put(dataObject);
-
-//     req.onsuccess = (event) => {
-//       //will trigger tx.oncomplete next
-//     };
-//   } else {
-//     console.log('no data was provided');
-//   }
-// }
-
-// function dbDeleteAll() {
-//   if (DB) {
-//     let tx = DB.transaction(storeName, 'readwrite');
-//     tx.onerror = (err) => {
-//       console.log('failed transaction');
-//     };
-//     tx.oncomplete = (event) => {
-//       console.log('transaction success');
-//     };
-//     let store = tx.objectStore(storeName);
-//     const req = store.clear();
-//     req.onsuccess = (event) => {
-//       //will trigger tx.oncomplete
-//     };
-//   } else {
-//     console.log('DB is closed');
-//   }
-// }
-
-// async function dbQuery(username) {
-//   const someFriends = await db.notes
-//   .where('username').equals(username).toArray();
-//   return console.log('here is the data: ', someFriends);
-// }
-
-
