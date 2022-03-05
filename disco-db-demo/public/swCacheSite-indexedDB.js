@@ -1,6 +1,6 @@
 //public/sw.js
 //importScripts('https://cdn.jsdelivr.net/npm/dexie@3.2.1/dist/dexie.min.js');
-import { openDB, dbAdd, dbDeleteAll, patchData, deleteData, postData, syncDataToServer, dbGetAll, dbGlobals } from './indexedDB.js';
+import { openDB, dbAdd, dbDeleteAll, addToSyncQueue, syncDataToServer, dbGetAll, dbGlobals } from './indexedDB.js';
 // const { version, databaseName, storeName, keyPath } = dbGlobals;
 // let { DB } = dbGlobals;
 // import { dbGlobals } from './dbGlobals.js';
@@ -51,6 +51,9 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   //console.log('Fetch event for ', event.request);
   const reqClone = event.request.clone();
+  // console.log('Fetch event for ', event.request);
+  const bodyClone = event.request.clone();
+  const { url, method } = event.request;
 
   event.respondWith(
     // console.log('inside event.respondWith')
@@ -67,7 +70,7 @@ self.addEventListener('fetch', event => {
           //Add response to cache
           cache.put(event.request, resCloneCache);
         })
-        if (event.request.method === 'GET' && event.request.url === "http://localhost:3000/user/load") {
+        if (method === 'GET' && url === "http://localhost:3000/user/load") {
           resCloneDB.json().then(data => {
             console.log('this is the rescloneDB: ', data)
             console.log('retrieving value of DB:', dbGlobals.DB);
@@ -88,6 +91,7 @@ self.addEventListener('fetch', event => {
             }
             //populate indexedDB here
             data.data.forEach( note => {
+              // console.log('this is the note object: ', note);
               if (DB) {
                 dbAdd(note);
               } else {
@@ -103,24 +107,14 @@ self.addEventListener('fetch', event => {
     // if network is unavailable
     .catch((err) => {
       console.log('this is DB Globals in catch block: ', dbGlobals.DB);
+
+      //refactor DB - make it promise based
       DB = dbGlobals.DB
+
       // intercept network request and store to indexedDB (background-sync?)
       // concurrently, start making local changes to indexedDB
       console.log('Network is unavailable, heading into catch block')
       console.log('is the req Clone available in catch block? ', reqClone);
-      if (event.request.method === 'DELETE' && event.request.url === "http://localhost:3000/user/notes"){
-        console.log('Intercepting server request to load user notes');
-
-      }
-      if (event.request.method === 'PATCH' && event.request.url === "http://localhost:3000/user/notes"){
-        console.log('Intercepting server request to load user notes');
-        reqClone.json().then( data => {
-          console.log('this is the data inside the catch block from the reqClone: ', data);
-          //if this if conditional is met, patch the note inside indexedDB
-          //this block should add body to action queue
-
-        })
-      }
 
       if (event.request.method === 'GET' && event.request.url === "http://localhost:3000/user/load"){
         console.log('Intercepting server request to load user notes');
@@ -143,6 +137,47 @@ self.addEventListener('fetch', event => {
         }
 
       }
+      if(method === 'DELETE' && url === "http://localhost:3000/user/notes"){
+        bodyClone.json()
+          .then((data) => {
+            const reqBody = {
+              url: url,
+              method: method,
+              body: data
+            };
+            backgroundSync();
+            addToSyncQueue(reqBody);
+            //call function to DELETE note
+          })
+      }
+      if(method === 'PATCH' && url === "http://localhost:3000/user/notes"){
+        bodyClone.json()
+          .then((data) => {
+            const reqBody = {
+              url: url,
+              method: method,
+              body: data
+            };
+            backgroundSync();
+            addToSyncQueue(reqBody);
+            //call function to UPDATE note
+          })
+      }
+
+      //POST request is for future stretch feature. Allowing a user to create new entries while offline
+      //This will take some modification to the existing database to work correctly
+      if(method === 'POST' && url === "http://localhost:3000/user/notes"){
+        bodyClone.json()
+          .then((data) => {
+            const reqBody = {
+              url: url,
+              method: method,
+              body: data
+            };
+            backgroundSync();
+            addToSyncQueue(reqBody);
+          })
+      }
       return caches.match(event.request)
       .then(response => response)
     }))
@@ -154,23 +189,19 @@ self.addEventListener('fetch', event => {
   //Then invoke syncData
 self.addEventListener('sync', (event) => {
   if(event.tag === 'failed_requests'){
-     event.waitUntil(syncDataToServer())
+    event.waitUntil(syncDataToServer())
   };
 });
 
 
-//Listens to when postMessage() is invoked in components and passes the received data into corresponding functions
-self.addEventListener('message', (event) => {
-  if(event.data.hasOwnProperty('patchNote')){
-    const patchNote = event.data.patchNote
-    patchData(patchNote);
+  //When invoked, checks if service workers have been registered and ready.
+  //Then it will register a sync event under 'failed_requests' tag.
+  function backgroundSync() {
+    registration.sync.register('failed_requests')
+      .then(() => {
+        return console.log('Sync event registered')
+        })
+      .catch(() => {
+          return console.log('Unable to register sync event')
+      })
   }
-  if(event.data.hasOwnProperty('deleteNote')){
-    const deleteNote = event.data.deleteNote
-    deleteData(deleteNote);
-  }
-  if(event.data.hasOwnProperty('postNote')){
-    const postNote = event.data.postNote
-    postData(postNote);
-  }
-});

@@ -1,10 +1,10 @@
 
 const dbGlobals = {
   DB: null,
-  version: 8,
+  version: 9,
   databaseName: 'notesDB',
   storeName: 'notesStore',
-  failed_requests: 'failed_requests',
+  syncQueue: 'Queue',
   keyPath: '_id'
 }
 
@@ -26,9 +26,9 @@ function openDB (callback) {
         keyPath: dbGlobals.keyPath,
       });
     }
-    if (!db.objectStoreNames.contains(dbGlobals.failed_requests)) {
-      console.log('Creating failed_request store')
-      db.createObjectStore(dbGlobals.failed_requests, {
+    if (!db.objectStoreNames.contains(dbGlobals.syncQueue)) {
+      console.log('Creating Queue store')
+      db.createObjectStore(dbGlobals.syncQueue, {
         keyPath: 'id', autoIncrement: true,
       })
     }
@@ -114,51 +114,36 @@ function accessObjectStore (storeName, method) {
   return dbGlobals.DB.transaction([storeName], method).objectStore(storeName)
 };
 
-function patchData (data) {
-  //Open a transaction into store 'failed-requests' 
-  //Saves the persisting data in payload key
-  //URL and method to match type of request
-  const store = accessObjectStore(dbGlobals.failed_requests, 'readwrite')
-  store.add({url: '/user/notes', payload: data, method: 'PATCH'})
-}
-
-function deleteData (data) {
-  //Open a transaction into store 'failed-requests' 
-  const store = accessObjectStore(dbGlobals.failed_requests, 'readwrite')
-  store.add({url: '/user/notes', payload: data, method: 'DELETE'})
-}
-
-function postData (data) {
-  //Open a transaction into store 'failed-requests' 
-  const store = accessObjectStore(dbGlobals.failed_requests, 'readwrite')
-  store.add({url: '/user/notes', payload: data, method: 'POST'})
+function addToSyncQueue (data) {
+  //Open a transaction to object store 'Queue' 
+  const store = accessObjectStore(dbGlobals.syncQueue, 'readwrite')
+  //Add data to object store
+  store.add(data)
 }
 
 //Function to sync offline requests to database when client is back online
 function syncDataToServer() {
   //Create transaction to object store and grab all objects in an ordered array by ID.
-  const store = accessObjectStore(dbGlobals.failed_requests, 'readwrite');
+  const store = accessObjectStore(dbGlobals.syncQueue, 'readwrite');
   const request = store.getAll();
 
-  request.onsuccess = async function (event) {
-    const failedRequests = event.target.result;
+  request.onsuccess = function (event) {
+    const httpQueue = event.target.result;
     //Comes back as an array of objects 
-    //Iterate through saved failed HTTP requests and creates a format to recreate a Fetch Request.
-    failedRequests.forEach((data) => {
-      const url = data.url;
-      const method = data.method;
-      const body = JSON.stringify(data.payload)
+    //Iterate Queue store and initialize Fetch request
+    httpQueue.forEach((data) => {
+      const { url, method, body } = data
       const headers = {'Content-Type': 'application/json'};
       fetch(url, {
         method: method,
         headers: headers,
-        body: body
+        body: JSON.stringify(body)
       })
       .then((res) => res.json())
       .then((res) => {
         //Previous transaction was closed due to getAll()
         //Reopen object store and delete the corresponding object on successful HTTP request
-        const newStore = accessObjectStore(dbGlobals.failed_requests, 'readwrite');
+        const newStore = accessObjectStore(dbGlobals.syncQueue, 'readwrite');
         newStore.delete(data.id);
       })
       .catch((error) => {
@@ -167,6 +152,9 @@ function syncDataToServer() {
       })
     });
   }
+  request.onerror = (err) => {
+    console.log('Attempt to sync queue failed:', err);
+  }
 };
 
-export { openDB, dbAdd, dbDeleteAll, patchData, deleteData, postData, syncDataToServer, dbGetAll, dbGlobals }
+export { openDB, dbAdd, dbDeleteAll, addToSyncQueue, syncDataToServer, dbGetAll, dbGlobals }
