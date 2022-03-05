@@ -1,12 +1,16 @@
 //public/sw.js
 //importScripts('https://cdn.jsdelivr.net/npm/dexie@3.2.1/dist/dexie.min.js');
-// import { openDB } from './indexedDB.js';
+import { openDB, dbAdd, dbDeleteAll, dbGlobals } from './indexedDB.js';
 // const { version, databaseName, storeName, keyPath } = dbGlobals;
 // let { DB } = dbGlobals;
 // import { dbGlobals } from './dbGlobals.js';
+// import { testObj, testFunc } from './testImport.js';
+// let testObjCopy = testObj.test;
 
 const cacheName = 'my-site-cache-v3';
+//added from Young Min's file
 let DB;
+
 const version = 7;
 const databaseName = 'notesDB';
 const storeName = 'notesStore';
@@ -16,6 +20,10 @@ const keyPath = '_id';
 self.addEventListener('install', event => {
   console.log('Attempting to install service worker and cache static assets');
   self.skipWaiting();
+  console.log('opening DB since sw is activated')
+        openDB();
+        DB = dbGlobals.DB;
+        console.log('DB: ', DB)
 });
 
 
@@ -35,8 +43,11 @@ self.addEventListener('activate', event => {
         })
       )
       .then( (arr) => {
-        //open DB when sw is activated
-        openDB();
+        // //open DB when sw is activated
+        // console.log('opening DB since sw is activated')
+        // openDB();
+        // DB = dbGlobals.DB;
+        // console.log('DB: ', DB)
       })
     })
   );
@@ -65,6 +76,14 @@ self.addEventListener('fetch', event => {
         if (event.request.method === 'GET' && event.request.url === "http://localhost:3000/user/load") {
           resCloneDB.json().then(data => {
             console.log('this is the rescloneDB: ', data)
+            console.log('retrieving value of DB:', dbGlobals.DB);
+            DB = dbGlobals.DB
+            // // test import
+            // console.log('testing import')
+            // console.log('current value of testObj.test: should be false ', testObjCopy)
+            // console.log('return value for testFunc: ', testFunc(true))
+            // console.log('new value of testObj.test: should be true ', testObjCopy)
+            // console.log(testFunc());
             //delete existing indexedDB data
             if (DB) {
               console.log('invoking dbDeleteALL in if')
@@ -196,44 +215,44 @@ function openDB (callback) {
   };
 };
 
-function dbAdd(dataObject) {
-  if (dataObject && DB) {
-    let tx = DB.transaction(storeName, 'readwrite');
-    tx.onerror = (err) => {
-      console.log('failed transaction');
-    };
-    tx.oncomplete = (event) => {
-      console.log('data saved successfully');
-    };
-    let store = tx.objectStore(storeName);
-    let req = store.put(dataObject);
+// function dbAdd(dataObject) {
+//   if (dataObject && DB) {
+//     let tx = DB.transaction(storeName, 'readwrite');
+//     tx.onerror = (err) => {
+//       console.log('failed transaction');
+//     };
+//     tx.oncomplete = (event) => {
+//       console.log('data saved successfully');
+//     };
+//     let store = tx.objectStore(storeName);
+//     let req = store.put(dataObject);
 
-    req.onsuccess = (event) => {
-      //will trigger tx.oncomplete next
-    };
-  } else {
-    console.log('no data was provided');
-  }
-}
+//     req.onsuccess = (event) => {
+//       //will trigger tx.oncomplete next
+//     };
+//   } else {
+//     console.log('no data was provided');
+//   }
+// }
 
-function dbDeleteAll() {
-  if (DB) {
-    let tx = DB.transaction(storeName, 'readwrite');
-    tx.onerror = (err) => {
-      console.log('failed transaction');
-    };
-    tx.oncomplete = (event) => {
-      console.log('transaction success');
-    };
-    let store = tx.objectStore(storeName);
-    const req = store.clear();
-    req.onsuccess = (event) => {
-      //will trigger tx.oncomplete
-    };
-  } else {
-    console.log('DB is closed');
-  }
-}
+// function dbDeleteAll() {
+//   if (DB) {
+//     let tx = DB.transaction(storeName, 'readwrite');
+//     tx.onerror = (err) => {
+//       console.log('failed transaction');
+//     };
+//     tx.oncomplete = (event) => {
+//       console.log('transaction success');
+//     };
+//     let store = tx.objectStore(storeName);
+//     const req = store.clear();
+//     req.onsuccess = (event) => {
+//       //will trigger tx.oncomplete
+//     };
+//   } else {
+//     console.log('DB is closed');
+//   }
+// }
 
 // async function dbQuery(username) {
 //   const someFriends = await db.notes
