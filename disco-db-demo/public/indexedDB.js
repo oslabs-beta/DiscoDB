@@ -93,13 +93,13 @@ function patchData (data) {
   //Saves the persisting data in payload key
   //URL and method to match type of request
   const store = accessObjectStore(dbGlobals.failed_requests, 'readwrite')
-  store.add({url: '/user/notes', payload: data, method: 'PATCH'})
+  store.add(data)
 }
 
 function deleteData (data) {
   //Open a transaction into store 'failed-requests' 
   const store = accessObjectStore(dbGlobals.failed_requests, 'readwrite')
-  store.add({url: '/user/notes', payload: data, method: 'DELETE'})
+  store.add(data)
 }
 
 function postData (data) {
@@ -117,11 +117,12 @@ function syncDataToServer() {
   request.onsuccess = async function (event) {
     const failedRequests = event.target.result;
     //Comes back as an array of objects 
+    console.log('onsuccess', failedRequests)
     //Iterate through saved failed HTTP requests and creates a format to recreate a Fetch Request.
     failedRequests.forEach((data) => {
       const url = data.url;
       const method = data.method;
-      const body = JSON.stringify(data.payload)
+      const body = JSON.stringify(data.body)
       const headers = {'Content-Type': 'application/json'};
       fetch(url, {
         method: method,

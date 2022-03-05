@@ -89,7 +89,7 @@ self.addEventListener('fetch', (event) => {
             }
             //populate indexedDB here
             data.data.forEach( note => {
-              console.log('this is the note object: ', note);
+              // console.log('this is the note object: ', note);
               if (DB) {
                 console.log('invoking dbAdd in if')
                 dbAdd(note);
@@ -115,10 +115,30 @@ self.addEventListener('fetch', (event) => {
          console.log('Intercepting server request to load user notes');
 
       }
+      if(event.request.method === 'DELETE' && event.request.url === "http://localhost:3000/user/notes"){
+        bodyClone.json()
+          .then((data) => {
+            console.log('Failed delete data', data)
+            const reqBody = {
+              url: event.request.url,
+              method: event.request.method,
+              body: data
+            };
+            backgroundSync();
+            deleteData(reqBody);
+          })
+      }
       if(event.request.method === 'PATCH' && event.request.url === "http://localhost:3000/user/notes"){
         bodyClone.json()
           .then((data) => {
-            console.log('data in bodyclone error', data)
+            console.log('Failed patch data', data)
+            const reqBody = {
+              url: event.request.url,
+              method: event.request.method,
+              body: data
+            };
+            backgroundSync();
+            patchData(reqBody);
           })
       }
       return caches.match(event.request)
@@ -132,107 +152,49 @@ self.addEventListener('fetch', (event) => {
   //Then invoke syncData
 self.addEventListener('sync', (event) => {
   if(event.tag === 'failed_requests'){
-     event.waitUntil(syncDataToServer())
+    console.log('sync fired off')
+    event.waitUntil(syncDataToServer())
   };
 });
 
 
 //Listens to when postMessage() is invoked in components and passes the received data into corresponding functions
-self.addEventListener('message', (event) => {
-  if(event.data.hasOwnProperty('patchNote')){
-    const patchNote = event.data.patchNote
-    patchData(patchNote);
-  }
-  if(event.data.hasOwnProperty('deleteNote')){
-    const deleteNote = event.data.deleteNote
-    deleteData(deleteNote);
-  }
-  if(event.data.hasOwnProperty('postNote')){
-    const postNote = event.data.postNote
-    postData(postNote);
-  }
-});
-
-
-
-
-// //open Database
-// function openDB (callback) {
-//   let req = indexedDB.open(databaseName, version);
-//   req.onerror = (err) => {
-//     //could not open db
-//     console.log('Error: ', err);
-//     DB = null;
-//   };
-//   req.onupgradeneeded = (event) => {
-//     console.log('db upgraded');
-//     let db = event.target.result;
-//     if (!db.objectStoreNames.contains(storeName)) {
-//       db.createObjectStore(storeName, {
-//         keyPath: keyPath,
-//       });
-//     }
-//     if (!db.objectStoreNames.contains(failed_requests)) {
-//       console.log('Creating failed_request store')
-//       db.createObjectStore(failed_requests, {
-//         keyPath: 'id', autoIncrement: true,
-//       })
-//     }
-//   };
-
-//   req.onsuccess = (event) => {
-//     DB = event.target.result;
-//     //dbDeleteAll();
-//     console.log('db opened', DB);
-//     if (callback) {
-//       callback();
-//     }
-//   };
-// };
-
-// function dbAdd(dataObject) {
-//   if (dataObject && DB) {
-//     let tx = DB.transaction(storeName, 'readwrite');
-//     tx.onerror = (err) => {
-//       console.log('failed transaction');
-//     };
-//     tx.oncomplete = (event) => {
-//       console.log('data saved successfully');
-//     };
-//     let store = tx.objectStore(storeName);
-//     let req = store.put(dataObject);
-
-//     req.onsuccess = (event) => {
-//       //will trigger tx.oncomplete next
-//     };
-//   } else {
-//     console.log('no data was provided');
+// self.addEventListener('message', (event) => {
+//   if(event.data.hasOwnProperty('patchNote')){
+//     const patchNote = event.data.patchNote
+//     patchData(patchNote);
 //   }
-// }
-
-// function dbDeleteAll() {
-//   if (DB) {
-//     let tx = DB.transaction(storeName, 'readwrite');
-//     tx.onerror = (err) => {
-//       console.log('failed transaction');
-//     };
-//     tx.oncomplete = (event) => {
-//       console.log('transaction success');
-//     };
-//     let store = tx.objectStore(storeName);
-//     const req = store.clear();
-//     req.onsuccess = (event) => {
-//       //will trigger tx.oncomplete
-//     };
-//   } else {
-//     console.log('DB is closed');
+//   if(event.data.hasOwnProperty('deleteNote')){
+//     const deleteNote = event.data.deleteNote
+//     deleteData(deleteNote);
 //   }
-// }
+//   if(event.data.hasOwnProperty('postNote')){
+//     const postNote = event.data.postNote
+//     postData(postNote);
+//   }
+// });
 
-// async function dbQuery(username) {
-//   const someFriends = await db.notes
-//   .where('username').equals(username).toArray();
-//   return console.log('here is the data: ', someFriends);
-// }
-
-
+  //When invoked, checks if service workers have been registered and ready.
+  //Then it will register a sync event under 'failed_requests' tag.
+  // function backgroundSync() {
+  //   navigator.serviceWorker.ready
+  //     .then((registration) => {
+  //       console.log('Sync Registration')
+  //       return registration.sync.register('failed_requests');
+  //     })
+  //       .then(() => {
+  //         return console.log('Sync event registered')
+  //     })
+  //       .catch(() => {
+  //         return console.log('Unable to register sync event')
+  //       })
+  // }
+  function backgroundSync() {
+    registration.sync.register('failed_requests')
+      .then(() => {
+        return console.log('Sync event registered')
+        })
+      .catch(() => {
+          return console.log('Unable to register sync event')
+      })
+  }
