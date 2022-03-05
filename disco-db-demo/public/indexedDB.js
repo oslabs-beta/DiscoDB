@@ -4,19 +4,19 @@
 // const storeName = 'notesStore';
 // const keyPath = '_id';
 
-// const dbGlobals = {
-//   DB: null,
-//   version: 1,
-//   databaseName: 'notesDB',
-//   storeName: 'notesStore',
-//   keyPath: '_id'
-// }
+const dbGlobals = {
+  DB: null,
+  version: 1,
+  databaseName: 'notesDB',
+  storeName: 'notesStore',
+  keyPath: '_id'
+}
 
-import dbGlobals from './dbGlobals';
+// import dbGlobals from './dbGlobals';
 
 //open Database
 function openDB (callback) {
-  let req = indexedDB.open(dbGlobals.databaseName, dbGlobals.version);
+  let req = indexedDB.open(dbGlobals.databaseName, dbGlobals.version)
   console.log("this is the database name and database store :", dbGlobals.databaseName, dbGlobals.storeName);
   req.onerror = (err) => {
     //could not open db
@@ -38,8 +38,48 @@ function openDB (callback) {
     if (callback) {
       callback();
     }
-  };
+    return dbGlobals.DB;
+    };
 };
 
+function dbAdd(dataObject) {
+  if (dataObject && dbGlobals.DB) {
+    let tx = dbGlobals.DB.transaction(dbGlobals.storeName, 'readwrite');
+    tx.onerror = (err) => {
+      console.log('failed transaction');
+    };
+    tx.oncomplete = (event) => {
+      console.log('data saved successfully');
+    };
+    let store = tx.objectStore(dbGlobals.storeName);
+    let req = store.put(dataObject);
 
-export { openDB, dbGlobals }
+    req.onsuccess = (event) => {
+      //will trigger tx.oncomplete next
+    };
+  } else {
+    console.log('no data was provided');
+  }
+}
+
+function dbDeleteAll() {
+  if (dbGlobals.DB) {
+    let tx = dbGlobals.DB.transaction(dbGlobals.storeName, 'readwrite');
+    tx.onerror = (err) => {
+      console.log('failed transaction');
+    };
+    tx.oncomplete = (event) => {
+      console.log('transaction success');
+    };
+    let store = tx.objectStore(dbGlobals.storeName);
+    const req = store.clear();
+    req.onsuccess = (event) => {
+      //will trigger tx.oncomplete
+    };
+  } else {
+    console.log('DB is closed');
+  }
+}
+
+
+export { openDB, dbAdd, dbDeleteAll, dbGlobals }
