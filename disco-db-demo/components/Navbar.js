@@ -19,6 +19,17 @@ export default function Navbar(props) {
     props.setOnline(event.target.checked);
   }
 
+  //check for network connectivity
+  window.addEventListener('offline', (event) => {
+    props.setOnline(false);
+  })
+  window.addEventListener('online', (event) => {
+    props.setOnline(true);
+  })
+  
+  console.log('isOnline inside of the navbar: ', props.online);
+    
+
   const handleLogout = (event) => {
     event.preventDefault();
     //sends GET request to auth/logout

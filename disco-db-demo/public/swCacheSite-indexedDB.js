@@ -1,6 +1,6 @@
 //public/sw.js
 //importScripts('https://cdn.jsdelivr.net/npm/dexie@3.2.1/dist/dexie.min.js');
-import { openDB, dbAdd, dbDeleteAll, dbGlobals } from './indexedDB.js';
+import { openDB, dbAdd, dbDeleteAll, patchData, deleteData, postData, syncDataToServer, dbGlobals } from './indexedDB.js';
 // const { version, databaseName, storeName, keyPath } = dbGlobals;
 // let { DB } = dbGlobals;
 // import { dbGlobals } from './dbGlobals.js';
@@ -11,11 +11,11 @@ const cacheName = 'my-site-cache-v3';
 //added from Young Min's file
 let DB;
 
-const version = 7;
-const databaseName = 'notesDB';
-const storeName = 'notesStore';
-const failed_requests = 'failed_requests';
-const keyPath = '_id';
+// const version = 7;
+// const databaseName = 'notesDB';
+// const storeName = 'notesStore';
+// const failed_requests = 'failed_requests';
+// const keyPath = '_id';
 
 self.addEventListener('install', event => {
   console.log('Attempting to install service worker and cache static assets');
@@ -42,13 +42,6 @@ self.addEventListener('activate', event => {
           }
         })
       )
-      .then( (arr) => {
-        // //open DB when sw is activated
-        // console.log('opening DB since sw is activated')
-        // openDB();
-        // DB = dbGlobals.DB;
-        // console.log('DB: ', DB)
-      })
     })
   );
   //Force SW to become available to all pages
@@ -131,11 +124,11 @@ self.addEventListener('fetch', event => {
 //When back online, listener will be invoked.
 //WaitUntil: waits for service workers until promise resolves
   //Then invoke syncData
-  self.addEventListener('sync', (event) => {
-    if(event.tag === 'failed_requests'){
-      event.waitUntil(syncDataToServer())
-    };
-  });
+self.addEventListener('sync', (event) => {
+  if(event.tag === 'failed_requests'){
+     event.waitUntil(syncDataToServer())
+  };
+});
 
 
 //Listens to when postMessage() is invoked in components and passes the received data into corresponding functions
@@ -154,66 +147,42 @@ self.addEventListener('message', (event) => {
   }
 });
 
-//Function to Access specific object store in IDB database and start a transaction
-function accessObjectStore (storeName, method) {
-  return DB.transaction([storeName], method).objectStore(storeName)
-};
 
-
-function patchData (data) {
-  //Open a transaction into store 'failed-requests' 
-  //Saves the persisting data in payload key
-  //URL and method to match type of request
-  const store = accessObjectStore(failed_requests, 'readwrite')
-  store.add({url: '/user/notes', payload: data, method: 'PATCH'})
-}
-
-function deleteData (data) {
-  //Open a transaction into store 'failed-requests' 
-  const store = accessObjectStore(failed_requests, 'readwrite')
-  store.add({url: '/user/notes', payload: data, method: 'DELETE'})
-}
-
-function postData (data) {
-  //Open a transaction into store 'failed-requests' 
-  const store = accessObjectStore(failed_requests, 'readwrite')
-  store.add({url: '/user/notes', payload: data, method: 'POST'})
-}
 
 
 // //open Database
-function openDB (callback) {
-  let req = indexedDB.open(databaseName, version);
-  req.onerror = (err) => {
-    //could not open db
-    console.log('Error: ', err);
-    DB = null;
-  };
-  req.onupgradeneeded = (event) => {
-    console.log('db upgraded');
-    let db = event.target.result;
-    if (!db.objectStoreNames.contains(storeName)) {
-      db.createObjectStore(storeName, {
-        keyPath: keyPath,
-      });
-    }
-    if (!db.objectStoreNames.contains(failed_requests)) {
-      console.log('Creating failed_request store')
-      db.createObjectStore(failed_requests, {
-        keyPath: 'id', autoIncrement: true,
-      })
-    }
-  };
+// function openDB (callback) {
+//   let req = indexedDB.open(databaseName, version);
+//   req.onerror = (err) => {
+//     //could not open db
+//     console.log('Error: ', err);
+//     DB = null;
+//   };
+//   req.onupgradeneeded = (event) => {
+//     console.log('db upgraded');
+//     let db = event.target.result;
+//     if (!db.objectStoreNames.contains(storeName)) {
+//       db.createObjectStore(storeName, {
+//         keyPath: keyPath,
+//       });
+//     }
+//     if (!db.objectStoreNames.contains(failed_requests)) {
+//       console.log('Creating failed_request store')
+//       db.createObjectStore(failed_requests, {
+//         keyPath: 'id', autoIncrement: true,
+//       })
+//     }
+//   };
 
-  req.onsuccess = (event) => {
-    DB = event.target.result;
-    //dbDeleteAll();
-    console.log('db opened', DB);
-    if (callback) {
-      callback();
-    }
-  };
-};
+//   req.onsuccess = (event) => {
+//     DB = event.target.result;
+//     //dbDeleteAll();
+//     console.log('db opened', DB);
+//     if (callback) {
+//       callback();
+//     }
+//   };
+// };
 
 // function dbAdd(dataObject) {
 //   if (dataObject && DB) {
@@ -260,37 +229,4 @@ function openDB (callback) {
 //   return console.log('here is the data: ', someFriends);
 // }
 
-//Function to sync offline requests to database when client is back online
-function syncDataToServer() {
-  //Create transaction to object store and grab all objects in an ordered array by ID.
-  const store = accessObjectStore(failed_requests, 'readwrite');
-  const request = store.getAll();
 
-  request.onsuccess = async function (event) {
-    const failedRequests = event.target.result;
-    //Comes back as an array of objects 
-    //Iterate through saved failed HTTP requests and creates a format to recreate a Fetch Request.
-    failedRequests.forEach((data) => {
-      const url = data.url;
-      const method = data.method;
-      const body = JSON.stringify(data.payload)
-      const headers = {'Content-Type': 'application/json'};
-      fetch(url, {
-        method: method,
-        headers: headers,
-        body: body
-      })
-      .then((res) => res.json())
-      .then((res) => {
-        //Previous transaction was closed due to getAll()
-        //Reopen object store and delete the corresponding object on successful HTTP request
-        const newStore = accessObjectStore(failed_requests, 'readwrite');
-        newStore.delete(data.id);
-      })
-      .catch((error) => {
-        console.error('Failed to sync data to server:', error);
-        throw error
-      })
-    });
-  }
-}
