@@ -1,6 +1,6 @@
 //public/sw.js
 //importScripts('https://cdn.jsdelivr.net/npm/dexie@3.2.1/dist/dexie.min.js');
-import { openDB, dbAdd, dbDeleteAll, addToSyncQueue, syncDataToServer, dbGetAll, dbGlobals } from './indexedDB.js';
+import { openDB, dbAdd, dbDeleteAll, addToSyncQueue, syncDataToServer, dbGetAll, dbDeleteOne, dbUpdateOne, dbGlobals } from './indexedDB.js';
 // const { version, databaseName, storeName, keyPath } = dbGlobals;
 // let { DB } = dbGlobals;
 // import { dbGlobals } from './dbGlobals.js';
@@ -113,20 +113,23 @@ self.addEventListener('fetch', event => {
 
       // intercept network request and store to indexedDB (background-sync?)
       // concurrently, start making local changes to indexedDB
-      console.log('Network is unavailable, heading into catch block')
-      console.log('is the req Clone available in catch block? ', reqClone);
+      //console.log('Network is unavailable, heading into catch block')
+      //console.log('is the req Clone available in catch block? ', reqClone);
 
       if (event.request.method === 'GET' && event.request.url === "http://localhost:3000/user/load"){
         console.log('Intercepting server request to load user notes');
         //get all the data from indexedDB and serve custom response to the client
         if (DB) {
-          dbGetAll().then((data) => {
-            const responseBody = {data: data};
+          return dbGetAll().then((data) => {
+
+            //REVISIT THIS, make sure to change data back to data!!
+            const responseBody = { data };
+            console.log({responseBody});
             const IDBData = new Response(JSON.stringify(responseBody));
             return IDBData;
           })
         } else {
-          openDB( () => {
+          return openDB( () => {
             console.log('invoking dbGetAll in else')
             dbGetAll().then((data) => {
               const responseBody = {data: data};
@@ -138,20 +141,30 @@ self.addEventListener('fetch', event => {
 
       }
       if(method === 'DELETE' && url === "http://localhost:3000/user/notes"){
-        bodyClone.json()
+        return bodyClone.json()
           .then((data) => {
             const reqBody = {
               url: url,
               method: method,
               body: data
             };
+            console.log('this is the delete data object when network fails: ', data);
             backgroundSync();
             addToSyncQueue(reqBody);
+
+            const id = data._id;
             //call function to DELETE note
+            dbDeleteOne(id);
+            const deleteResponse = new Response(JSON.stringify({}));
+            console.log({ deleteResponse });
+            return deleteResponse;
+          })
+          .catch( err => {
+            console.log('this is in the dbDeleteOne catch block: ', err);
           })
       }
       if(method === 'PATCH' && url === "http://localhost:3000/user/notes"){
-        bodyClone.json()
+        return bodyClone.json()
           .then((data) => {
             const reqBody = {
               url: url,
@@ -161,25 +174,36 @@ self.addEventListener('fetch', event => {
             backgroundSync();
             addToSyncQueue(reqBody);
             //call function to UPDATE note
+            const id = data._id;
+            console.log('this is the data sent to dbUpdateOne: ', data);
+            dbUpdateOne(data);
+            const patchResponse = new Response(JSON.stringify({}));
+            console.log({ patchResponse });
+            return patchResponse;
           })
       }
 
       //POST request is for future stretch feature. Allowing a user to create new entries while offline
       //This will take some modification to the existing database to work correctly
-      if(method === 'POST' && url === "http://localhost:3000/user/notes"){
-        bodyClone.json()
-          .then((data) => {
-            const reqBody = {
-              url: url,
-              method: method,
-              body: data
-            };
-            backgroundSync();
-            addToSyncQueue(reqBody);
-          })
+      // if(method === 'POST' && url === "http://localhost:3000/user/notes"){
+      //   bodyClone.json()
+      //     .then((data) => {
+      //       const reqBody = {
+      //         url: url,
+      //         method: method,
+      //         body: data
+      //       };
+      //       backgroundSync();
+      //       addToSyncQueue(reqBody);
+      //     })
+      // }
+      else {
+        return caches.match(event.request)
+        .then(response => {
+          console.log('-----------this is in the caches response block');
+          return response
+        })
       }
-      return caches.match(event.request)
-      .then(response => response)
     }))
 });
 

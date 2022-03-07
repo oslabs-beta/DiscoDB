@@ -65,7 +65,7 @@ export default function NotesContainer(props) {
     })
     .then(res => res.json())
     .then(data => {
-      console.log('Success', data);
+      console.log('Success, this is the patch response', data);
       //what do we do here on successful note update?
 
       //testing dexie update
@@ -110,6 +110,7 @@ export default function NotesContainer(props) {
     })
     .catch((err) => {
       console.log('Error in deleting notes:', err)
+      props.setRefresh(true);
     })
   };
 

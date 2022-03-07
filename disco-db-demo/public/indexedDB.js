@@ -109,6 +109,46 @@ function dbGetAll() {
   })
 }
 
+function dbDeleteOne(key) {
+  if (dbGlobals.DB) {
+    let tx = dbGlobals.DB.transaction(dbGlobals.storeName, 'readwrite');
+    tx.onerror = (err) => {
+      console.log('failed transaction');
+    };
+    tx.oncomplete = (event) => {
+      console.log('transaction success');
+    };
+    let store = tx.objectStore(dbGlobals.storeName);
+    const req = store.delete(key);
+    req.onsuccess = (event) => {
+      //will trigger tx.oncomplete
+    };
+  } else {
+    console.log('DB is closed');
+  }
+}
+
+function dbUpdateOne(item) {
+  if (dbGlobals.DB) {
+    let tx = dbGlobals.DB.transaction(dbGlobals.storeName, 'readwrite');
+    tx.onerror = (err) => {
+      console.log('failed transaction');
+    };
+    tx.oncomplete = (event) => {
+      console.log('transaction success');
+    };
+    console.log('this is the item passed in: ', item);
+    let store = tx.objectStore(dbGlobals.storeName);
+    const req = store.put(item);
+    req.onsuccess = (event) => {
+      //will trigger tx.oncomplete
+      console.log('this is the patch success event: ', event);
+    };
+  } else {
+    console.log('DB is closed');
+  }
+}
+
 //Function to Access specific object store in IDB database and start a transaction
 function accessObjectStore (storeName, method) {
   return dbGlobals.DB.transaction([storeName], method).objectStore(storeName)
@@ -157,4 +197,4 @@ function syncDataToServer() {
   }
 };
 
-export { openDB, dbAdd, dbDeleteAll, addToSyncQueue, syncDataToServer, dbGetAll, dbGlobals }
+export { openDB, dbAdd, dbDeleteAll, addToSyncQueue, syncDataToServer, dbGetAll, dbDeleteOne, dbUpdateOne, dbGlobals }
