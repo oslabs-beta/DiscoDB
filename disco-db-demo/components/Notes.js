@@ -79,7 +79,7 @@ export default function NotesContainer(props) {
       props.setRefresh(true);
     })
     .catch((err) => {
-      console.log('Error in deleting notes:', err)
+      console.log('Error in patching notes:', err)
     }
   )};
 

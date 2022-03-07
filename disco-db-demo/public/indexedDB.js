@@ -12,36 +12,41 @@ const dbGlobals = {
 
 //open Database
 function openDB (callback) {
-  let req = indexedDB.open(dbGlobals.databaseName, dbGlobals.version)
-  console.log("this is the database name and database store :", dbGlobals.databaseName, dbGlobals.storeName);
-  req.onerror = (err) => {
-    //could not open db
-    console.log('Error: ', err);
-    dbGlobals.DB = null;
-  };
-  req.onupgradeneeded = (event) => {
-    let db = event.target.result;
-    if (!db.objectStoreNames.contains(dbGlobals.storeName)) {
-      db.createObjectStore(dbGlobals.storeName, {
-        keyPath: dbGlobals.keyPath,
-      });
-    }
-    if (!db.objectStoreNames.contains(dbGlobals.syncQueue)) {
-      console.log('Creating Queue store')
-      db.createObjectStore(dbGlobals.syncQueue, {
-        keyPath: 'id', autoIncrement: true,
-      })
-    }
-  };
-  req.onsuccess = (event) => {
-    dbGlobals.DB = event.target.result;
-    console.log(dbGlobals.DB)
-    console.log('db opened and upgraded');
-    if (callback) {
-      callback();
-    }
-    return dbGlobals.DB;
+
+  return new Promise( (resolve, reject) => {
+    let req = indexedDB.open(dbGlobals.databaseName, dbGlobals.version)
+    console.log("this is the database name and database store :", dbGlobals.databaseName, dbGlobals.storeName);
+    req.onerror = (err) => {
+      //could not open db
+      console.log('Error: ', err);
+      dbGlobals.DB = null;
+      reject(err);
     };
+    req.onupgradeneeded = (event) => {
+      let db = event.target.result;
+      if (!db.objectStoreNames.contains(dbGlobals.storeName)) {
+        db.createObjectStore(dbGlobals.storeName, {
+          keyPath: dbGlobals.keyPath,
+        });
+      }
+      if (!db.objectStoreNames.contains(dbGlobals.syncQueue)) {
+        console.log('Creating Queue store')
+        db.createObjectStore(dbGlobals.syncQueue, {
+          keyPath: 'id', autoIncrement: true,
+        })
+      }
+    };
+    req.onsuccess = (event) => {
+      dbGlobals.DB = event.target.result;
+      console.log(dbGlobals.DB)
+      console.log('db opened and upgraded');
+      if (callback) {
+        callback();
+      }
+      resolve(dbGlobals.DB);
+      };
+  })
+
 };
 
 function dbAdd(dataObject) {

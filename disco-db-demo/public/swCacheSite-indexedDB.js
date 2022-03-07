@@ -1,29 +1,18 @@
 //public/sw.js
 //importScripts('https://cdn.jsdelivr.net/npm/dexie@3.2.1/dist/dexie.min.js');
 import { openDB, dbAdd, dbDeleteAll, addToSyncQueue, syncDataToServer, dbGetAll, dbDeleteOne, dbUpdateOne, dbGlobals } from './indexedDB.js';
-// const { version, databaseName, storeName, keyPath } = dbGlobals;
-// let { DB } = dbGlobals;
-// import { dbGlobals } from './dbGlobals.js';
-// import { testObj, testFunc } from './testImport.js';
-// let testObjCopy = testObj.test;
+
 
 const cacheName = 'my-site-cache-v3';
-//added from Young Min's file
+
 let DB;
 
-// const version = 7;
-// const databaseName = 'notesDB';
-// const storeName = 'notesStore';
-// const failed_requests = 'failed_requests';
-// const keyPath = '_id';
 
 self.addEventListener('install', event => {
   console.log('Attempting to install service worker and cache static assets');
   self.skipWaiting();
   console.log('opening DB since sw is activated')
-        openDB();
-        DB = dbGlobals.DB;
-        console.log('DB: ', DB)
+        openDB().then(data => DB = data);
 });
 
 
@@ -49,20 +38,20 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  //console.log('Fetch event for ', event.request);
+
+  //clone the request so that the body of the request will still be available
   const reqClone = event.request.clone();
-  // console.log('Fetch event for ', event.request);
-  const bodyClone = event.request.clone();
   const { url, method } = event.request;
 
   event.respondWith(
-    // console.log('inside event.respondWith')
+
     fetch(event.request)
     .then( (response) => {
       
       // Make clone of response
       const resCloneCache = response.clone();
       const resCloneDB = response.clone()
+
       //Open cache
       caches
         .open(cacheName)
@@ -70,17 +59,53 @@ self.addEventListener('fetch', event => {
           //Add response to cache
           cache.put(event.request, resCloneCache);
         })
-        if (method === 'GET' && url === "http://localhost:3000/user/load") {
+
+      //invoke online reducer to populate indexedDB
+      requestReducerOnline(method, url, event.request, resCloneDB);
+      return response;
+    })
+    // if network is unavailable
+    .catch((err) => {
+      console.log('this is DB in catch block: ', DB);
+      //invoke offline reducer to perform RUD functions to indexedDB
+      return requestReducerOffline(method, url, reqClone);
+    })
+  )
+});
+
+
+//When back online, listener will be invoked.
+//WaitUntil: waits for service workers until promise resolves
+  //Then invoke syncData
+self.addEventListener('sync', (event) => {
+  if(event.tag === 'failed_requests'){
+    event.waitUntil(syncDataToServer())
+  };
+});
+
+
+//When invoked, checks if service workers have been registered and ready.
+//Then it will register a sync event under 'failed_requests' tag.
+function backgroundSync() {
+  registration.sync.register('failed_requests')
+    .then(() => {
+      return console.log('Sync event registered')
+      })
+    .catch(() => {
+        return console.log('Unable to register sync event')
+    })
+}
+
+
+//create a request reducer - online
+function requestReducerOnline(method, url, eventRequest, clonedResponse) {
+  switch(url) {
+    case 'http://localhost:3000/user/load':
+      switch(method) {
+        case 'GET':
+          const resCloneDB = clonedResponse;
           resCloneDB.json().then(data => {
             console.log('this is the rescloneDB: ', data)
-            console.log('retrieving value of DB:', dbGlobals.DB);
-            DB = dbGlobals.DB
-            // // test import
-            // console.log('testing import')
-            // console.log('current value of testObj.test: should be false ', testObjCopy)
-            // console.log('return value for testFunc: ', testFunc(true))
-            // console.log('new value of testObj.test: should be true ', testObjCopy)
-            // console.log(testFunc());
             //delete existing indexedDB data
             if (DB) {
               dbDeleteAll();
@@ -91,7 +116,7 @@ self.addEventListener('fetch', event => {
             }
             //populate indexedDB here
             data.data.forEach( note => {
-              // console.log('this is the note object: ', note);
+              console.log('this is the note object: ', note);
               if (DB) {
                 dbAdd(note);
               } else {
@@ -100,48 +125,53 @@ self.addEventListener('fetch', event => {
                 })
               }
             })
-          })
-        }
-        return response;
-    })
-    // if network is unavailable
-    .catch((err) => {
-      console.log('this is DB Globals in catch block: ', dbGlobals.DB);
+            console.log('returning eventresponse after adding all notes into IndexedDB');
+          });
 
-      //refactor DB - make it promise based
-      DB = dbGlobals.DB
+        default:
+          console.log('this method is not configured');
+          break;
+      }
+    default:
+      console.log('this is the online eventResponse: ', eventRequest);
+      break;
+  }
+}
 
-      // intercept network request and store to indexedDB (background-sync?)
-      // concurrently, start making local changes to indexedDB
-      //console.log('Network is unavailable, heading into catch block')
-      //console.log('is the req Clone available in catch block? ', reqClone);
 
-      if (event.request.method === 'GET' && event.request.url === "http://localhost:3000/user/load"){
-        console.log('Intercepting server request to load user notes');
-        //get all the data from indexedDB and serve custom response to the client
-        if (DB) {
-          return dbGetAll().then((data) => {
-
-            //REVISIT THIS, make sure to change data back to data!!
-            const responseBody = { data };
-            console.log({responseBody});
-            const IDBData = new Response(JSON.stringify(responseBody));
-            return IDBData;
-          })
-        } else {
-          return openDB( () => {
-            console.log('invoking dbGetAll in else')
-            dbGetAll().then((data) => {
-              const responseBody = {data: data};
+//create a request reducer - offline
+function requestReducerOffline(method, url, eventRequest, eventResponse) {
+  switch(url) {
+    case 'http://localhost:3000/user/load':
+      switch(method) {
+        case 'GET':
+          if (DB) {
+            return dbGetAll().then((data) => {
+              //REVISIT THIS, make sure to change data back to data!!
+              const responseBody = { data };
+              console.log('this is the response body inside the request reducer function: ');
+              console.log({responseBody});
               const IDBData = new Response(JSON.stringify(responseBody));
               return IDBData;
-            });
-          })
-        }
-
+            })
+          } else {
+            return openDB( () => {
+              console.log('invoking dbGetAll in else')
+              dbGetAll().then((data) => {
+                const responseBody = {data: data};
+                const IDBData = new Response(JSON.stringify(responseBody));
+                return IDBData;
+              });
+            })
+          }
+        default:
+          console.log('this method is not configured');
+          break;
       }
-      if(method === 'DELETE' && url === "http://localhost:3000/user/notes"){
-        return bodyClone.json()
+    case 'http://localhost:3000/user/notes':
+      switch(method) {
+        case 'DELETE':
+          return eventRequest.json()
           .then((data) => {
             const reqBody = {
               url: url,
@@ -162,9 +192,8 @@ self.addEventListener('fetch', event => {
           .catch( err => {
             console.log('this is in the dbDeleteOne catch block: ', err);
           })
-      }
-      if(method === 'PATCH' && url === "http://localhost:3000/user/notes"){
-        return bodyClone.json()
+        case 'PATCH':
+          return eventRequest.json()
           .then((data) => {
             const reqBody = {
               url: url,
@@ -181,51 +210,15 @@ self.addEventListener('fetch', event => {
             console.log({ patchResponse });
             return patchResponse;
           })
-      }
-
-      //POST request is for future stretch feature. Allowing a user to create new entries while offline
-      //This will take some modification to the existing database to work correctly
-      // if(method === 'POST' && url === "http://localhost:3000/user/notes"){
-      //   bodyClone.json()
-      //     .then((data) => {
-      //       const reqBody = {
-      //         url: url,
-      //         method: method,
-      //         body: data
-      //       };
-      //       backgroundSync();
-      //       addToSyncQueue(reqBody);
-      //     })
-      // }
-      else {
-        return caches.match(event.request)
+        default:
+          console.log('this method in /user/notes is not configured')
+      } 
+    default:
+      console.log('this url is not configured');
+      return caches.match(eventRequest)
         .then(response => {
-          console.log('-----------this is in the caches response block');
+          console.log('-----------this is in the caches response block: ', eventRequest);
           return response
         })
-      }
-    }))
-});
-
-
-//When back online, listener will be invoked.
-//WaitUntil: waits for service workers until promise resolves
-  //Then invoke syncData
-self.addEventListener('sync', (event) => {
-  if(event.tag === 'failed_requests'){
-    event.waitUntil(syncDataToServer())
-  };
-});
-
-
-  //When invoked, checks if service workers have been registered and ready.
-  //Then it will register a sync event under 'failed_requests' tag.
-  function backgroundSync() {
-    registration.sync.register('failed_requests')
-      .then(() => {
-        return console.log('Sync event registered')
-        })
-      .catch(() => {
-          return console.log('Unable to register sync event')
-      })
   }
+}
