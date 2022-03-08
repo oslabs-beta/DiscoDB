@@ -1,10 +1,15 @@
 
 const dbGlobals = {
   DB: null,
+  // user config required
   version: 9,
+  // default value but user can specify
   databaseName: 'notesDB',
+  // dynamic based on user supplied config url/storeName
   storeName: 'notesStore',
+  // default value but user can specify
   syncQueue: 'Queue',
+  // user config required
   keyPath: '_id'
 }
 
