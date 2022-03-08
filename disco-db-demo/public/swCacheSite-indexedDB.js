@@ -138,6 +138,28 @@ function requestReducerOnline(method, url, eventRequest, clonedResponse) {
   }
 }
 
+url: x method: y
+url: x method: z
+url: a method: b
+
+// if (url === x && method: GET)
+
+//url
+  //GET
+    //requestReducerOfflineGET(url)
+  //DELETE
+    //requestReducerOfflineDELETE(url)
+  //PATCH
+    //requestReducerOfflinePATCH(url)
+
+
+//      GET method at URL
+// else if (url === x && method: DELETE)
+// function requestReducerOfflineDELETE(url, data)
+//      DELETE method at URL
+// else if (url === x && method: PATCH)
+// function requestReducerOfflinePATCH(url, data)
+//      PATCH method at URL
 
 //create a request reducer - offline
 function requestReducerOffline(method, url, eventRequest, eventResponse) {
