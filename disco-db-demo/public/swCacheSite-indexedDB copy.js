@@ -240,9 +240,6 @@ function requestReducerOffline(method, url, eventRequest, eventResponse) {
             const id = data._id;
             console.log('this is the data sent to dbUpdateOne: ', data);
             dbUpdateOne(data);
-
-            // returns empty object to trigger rerender in our app 
-            // assumes developer does not want to do anything with the response
             const patchResponse = new Response(JSON.stringify({}));
             console.log({ patchResponse });
             return patchResponse;
