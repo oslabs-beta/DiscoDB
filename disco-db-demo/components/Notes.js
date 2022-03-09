@@ -2,17 +2,11 @@ import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import CssBaseline from '@mui/material/CssBaseline';
-import { useRouter } from 'next/router';
 
 export default function NotesContainer(props) {
-  // const [setContent, setNewContent] = useState('');
-  // const [setTitle, setNewTitle] = useState('');
-  //grab query paramaters from note - work in progress
-  // const router = useRouter();
-  // let noteID = Object.keys(router.query)[0];
+
 
   console.log('current setTitle: ',props.setTitle)
 
@@ -45,7 +39,6 @@ export default function NotesContainer(props) {
             </Box>
   ]
 
-
   const handleSave = (event) => {
     event.preventDefault();
 
@@ -72,12 +65,15 @@ export default function NotesContainer(props) {
     })
     .then(res => res.json())
     .then(data => {
-      console.log('Success', data);
+      console.log('Success, this is the patch response', data);
       //what do we do here on successful note update?
+
       props.setRefresh(true);
     })
-    .catch(err => console.log('Error', err))
-  };
+    .catch((err) => {
+      console.log('Error in patching notes:', err)
+    }
+  )};
 
   const handleDelete = (event) => {
     event.preventDefault();
@@ -101,12 +97,15 @@ export default function NotesContainer(props) {
     .then(data => {
       console.log('Success', data);
       //should remove entry from array
+
       props.setRefresh(true);
     })
-    .catch(err => console.log('Error', err))
+    .catch((err) => {
+      console.log('Error in deleting notes:', err)
+      props.setRefresh(true);
+    })
   };
 
-  
   return (
     <Container component="main">
       <CssBaseline />

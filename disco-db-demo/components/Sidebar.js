@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
@@ -19,7 +17,6 @@ const router = useRouter();
 const [setSidebar, setNewSidebar] = useState([]);
 //Saves all notes as buttons for user on front-end for later access.
 const sidebarArray = [];
-const userNoteArr = [];
 
 console.log('this is in sidebar.js', props.noteArray);
 
@@ -30,7 +27,7 @@ console.log('this is in sidebar.js', props.noteArray);
     props.noteArray.forEach((ele) => {
     //usernote has entire object per note for user
     console.log(ele.title);
-    const userNoteButton = <ListItem button id={ele._id} onClick={currNoteHandler}>
+    const userNoteButton = <ListItem button id={ele._id} key={ele._id} onClick={currNoteHandler}>
     <NotesIcon></NotesIcon>
     <ListItemText primary={ele.title || 'Untitled Note...'}/>
     </ListItem>
@@ -62,8 +59,7 @@ console.log('this is in sidebar.js', props.noteArray);
     .then((data) => {
       console.log('this is the response from NEW NOTE button', data);
       const uniqId = data.data._id;
-      //random num for testing purposes
-      //const ranNum = Math.ceil(Math.random() * 10)
+
       const newNote = 
           <ListItem button id={uniqId} key={uniqId} onClick={currNoteHandler}>
             <NotesIcon></NotesIcon>
@@ -72,8 +68,9 @@ console.log('this is in sidebar.js', props.noteArray);
           setNewSidebar([...setSidebar, newNote])
           props.setRefresh(true);
     })
-    .catch((err) => {return console.log('Error', err)});
-
+    .catch((err) => {
+      console.log('Error in creating new note:', err)
+    });
   };
   //Click handler to obtain ID attribute and shallow route to the note.
   function currNoteHandler (e){

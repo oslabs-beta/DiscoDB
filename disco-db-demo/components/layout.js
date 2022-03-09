@@ -8,8 +8,7 @@ import React, { useEffect, useState } from 'react';
 export default function Layout({ children }) {
 
   const [isLoading, setLoading] = useState(true);
-  
-  //temporay storage for props.
+
   //pass in to use effect from /api/hello for testing
   const userNoteArr = [];
   const [online, setOnline] = React.useState(true);
@@ -24,27 +23,32 @@ export default function Layout({ children }) {
     return child;
   });
 
+
+
   useEffect(() => {
+
     const testURL = '/api/hello';
     const devURL = '/user/load';
-
     fetch(devURL)
     .then((res) => res.json())
     .then( (data) => {
       //Iterate thru retrived data and create a copy of each object into state array.
-      console.log('this is in the layout useEffect: ', data);
+      console.log('this is the response from the backend /user/load endpoint: ', data);
       data.data.forEach((ele) => {
-        // const userNote = {...ele};
-        console.log(ele);
+
         userNoteArr.push(ele);
+
+        //const { username, _id, title, content, createdAt, updatedAt } = ele
+
       });
         setNewNote(userNoteArr);
-        console.log('noteArray: ', noteArray);
+
         setLoading(false);
         setRefresh(false);
+
     })
     .catch((err) => console.log('Error in fetching data', err))
-  }, [refresh]);
+  }, [refresh, online]);
 
   if (isLoading) return null;
   else {

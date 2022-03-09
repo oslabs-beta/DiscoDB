@@ -1,0 +1,44 @@
+{
+  "name": "disco-db",
+  "version": "1.0.0",
+  "description": "A minimalist IndexedDB wrapper and syncing solution for when your application disco(nnects) from the network",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oslabs-beta/DiscoDB.git"
+  },
+  "keywords": [
+    "indexeddb",
+    "service",
+    "worker",
+    "offline",
+    "synchronization"
+  ],
+  "author": "",
+  "license": "MIT",
+  "contributors": [
+    {
+      "name": "Young Min Lee",
+      "url": "https://github.com/youngmineeh"
+    },
+    {
+      "name": "Jackson Tong",
+      "url": "https://github.com/jacksonktong"
+    },
+    {
+      "name": "Eric Gomez",
+      "url": "https://github.com/ergomez0201"
+    },
+    {
+      "name": "Eric McCorkle",
+      "url": "https://github.com/ericmccorkle"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/oslabs-beta/DiscoDB/issues"
+  },
+  "homepage": "https://discodb.dev/"
+}
