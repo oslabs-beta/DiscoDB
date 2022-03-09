@@ -68,14 +68,6 @@ export default function NotesContainer(props) {
       console.log('Success, this is the patch response', data);
       //what do we do here on successful note update?
 
-      //testing dexie update
-      const testData = {
-        id: props.noteID,
-        title: noteTitle.value,
-        content: noteContent.value,
-        updatedAt: Date.now()
-      }
-
       props.setRefresh(true);
     })
     .catch((err) => {
