@@ -107,17 +107,17 @@ self.addEventListener('sync', (event) => {
 });
 
 
-//When invoked, checks if service workers have been registered and ready.
-//Then it will register a sync event under 'failed_requests' tag.
-function backgroundSync() {
-  registration.sync.register('failed_requests')
-    .then(() => {
-      return console.log('Sync event registered')
-      })
-    .catch(() => {
-        return console.log('Unable to register sync event')
-    })
-}
+// //When invoked, checks if service workers have been registered and ready.
+// //Then it will register a sync event under 'failed_requests' tag.
+// function backgroundSync() {
+//   registration.sync.register('failed_requests')
+//     .then(() => {
+//       return console.log('Sync event registered')
+//       })
+//     .catch(() => {
+//         return console.log('Unable to register sync event')
+//     })
+// }
 
 
 //create a request reducer - online

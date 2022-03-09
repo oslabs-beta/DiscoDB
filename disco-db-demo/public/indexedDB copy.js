@@ -212,5 +212,4 @@ function discoUpdateOne(dataObject) {
   })
 };
 
-
-export { discoConnect, discoAdd, discoDeleteAll, discoGetAll, discoDeleteOne, discoUpdateOne }
+export { discoConnect, discoAdd, discoDeleteAll, discoGetAll, discoDeleteOne, discoUpdateOne }; 
