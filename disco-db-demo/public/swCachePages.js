@@ -1,4 +1,4 @@
-//public/sw.js
+// Example code for cache first network fallback service worker
 
 const staticCacheName = 'my-site-cache-v1';
 const filesToCache = [

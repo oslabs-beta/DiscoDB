@@ -26,8 +26,8 @@ Notes.js Component
 
 
 Outstanding Questions
-  • Is this library specifically for MongoDB/NoSQL or can it also work with SQL databases since the Response data will be the same regardless. 
-    - Action queue will work regardless of SQL or NoSQL 
+  • Is this library specifically for MongoDB/NoSQL or can it also work with SQL databases since the Response data will be the same regardless? Because of the keypath property in the configuration file, our library will only work with NoSQL OR single table SQL databses. 
+    - Action queue will work in those above instances. 
   • Configuration file to set up 
     ○ README Would need to specify that user create the config file in a specific spot, likely the root directory or repo 
   • React Hook with the useEffect? Or functions in the component mount and unmount lifecycle events? 
