@@ -1,11 +1,12 @@
+import { idbPromise, dbGlobals } from './discoGlobals.js';
 
 // import { storeName, syncQueue } from './discodb.config.json'
 
-const version = 9;
-const databaseName = 'notesDB';
-const storeName = 'notesStore';
-const syncQueue = 'Queue';
-const keyPath = '_id';
+// const version = 9;
+// const databaseName = 'notesDB';
+// const storeName = 'notesStore';
+// const syncQueue = 'Queue';
+// const keyPath = '_id';
 
 
 /**
@@ -15,7 +16,7 @@ const keyPath = '_id';
  * @return {Object} Accessed Object store Object 
  */
 function accessObjectStore (storeName, method) {
-  return DB.transaction([storeName], method).objectStore(storeName)
+  return idbPromise.DB.transaction([storeName], method).objectStore(storeName)
 };
 /**
  * @property {Function} discoAddToQueue Adds Object into Object store
@@ -24,7 +25,7 @@ function accessObjectStore (storeName, method) {
  */
 function discoAddToQueue (dataObject) { 
   //Open a transaction to object store 'Queue' 
-  const store = accessObjectStore(syncQueue, 'readwrite')
+  const store = accessObjectStore(dbGlobals.syncQueue, 'readwrite')
   //Add data to object store
   store.add(dataObject)
 };
@@ -47,7 +48,7 @@ async function discoRegisterSync() {
  * 
  */
 function discoSyncToServer() {
-  const store = accessObjectStore(syncQueue, 'readwrite');
+  const store = accessObjectStore(dbGlobals.syncQueue, 'readwrite');
   const request = store.getAll();
 
   request.onsuccess = function (event) {
@@ -66,7 +67,7 @@ function discoSyncToServer() {
       .then((res) => {
         //Previous transaction was closed due to getAll()
         //Reopen object store and delete the corresponding object on successful HTTP request
-        const newStore = accessObjectStore(syncQueue, 'readwrite');
+        const newStore = accessObjectStore(dbGlobals.syncQueue, 'readwrite');
         newStore.delete(data.id);
       })
       .catch((error) => {

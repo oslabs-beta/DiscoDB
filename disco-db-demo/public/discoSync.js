@@ -1,5 +1,6 @@
-import {  discoConnect, discoGetAll, discoDeleteOne, discoUpdateOne, discoAdd, discoDeleteAll, dbGlobals  } from './idbOperations.js';
-import {  discoAddToQueue, discoRegisterSync } from './backgroundSync.js';
+import { discoConnect, discoGetAll, discoDeleteOne, discoUpdateOne, discoAdd, discoDeleteAll } from './idbOperations.js';
+import { discoAddToQueue, discoRegisterSync } from './backgroundSync.js';
+import { idbPromise , dbGlobals } from './discoGlobals.js';
 
 /**
  * @property {Function} discoSyncOffline Executes different IndexedDB logic based on the value of passed in method
@@ -9,12 +10,12 @@ import {  discoAddToQueue, discoRegisterSync } from './backgroundSync.js';
  * @param {Request} eventRequest This is the cloned version of the intercepted fetch request
  *
  */
-function discoSyncOffline(method, url, store, clonedRequest) {
+function discoSyncOffline(method, url, clonedRequest) {
   // assuming store can be managed by config file and imported into indexedDB.js
   // config.store = store
   switch(method) {
     case 'GET':
-      if (dbGlobals.DB) {
+      if (idbPromise.DB) {
         // if store 
         return discoGetAll().then((data) => {
           //REVISIT THIS, make sure to change data back to data!!
@@ -35,7 +36,7 @@ function discoSyncOffline(method, url, store, clonedRequest) {
         })
       }
     case 'DELETE':
-      return eventRequest.json()
+      return clonedRequest.json()
       .then((data) => {
         const reqBody = {
           url: url,
@@ -45,9 +46,9 @@ function discoSyncOffline(method, url, store, clonedRequest) {
         console.log('this is the delete data object when network fails: ', data);
         discoRegisterSync();
         discoAddToQueue(reqBody);
-
-        // import keypath from config and replace _id
-        const id = data._id;
+        const keypath = dbGlobals.keypath;
+        const id = data[keypath];
+        console.log('this is id of dbGlobals.keyPath, ', dbGlobals.keypath);
         //call function to DELETE note
         discoDeleteOne(id);
         const deleteResponse = new Response(JSON.stringify({}));
@@ -58,7 +59,7 @@ function discoSyncOffline(method, url, store, clonedRequest) {
         console.log('this is in the dbDeleteOne catch block: ', err);
       })
     case 'PATCH':
-      return eventRequest.json()
+      return clonedRequest.json()
       .then((data) => {
         const reqBody = {
           url: url,
@@ -68,8 +69,8 @@ function discoSyncOffline(method, url, store, clonedRequest) {
         discoRegisterSync();
         discoAddToQueue(reqBody);
         //call function to UPDATE note
-        // import keypath from config and replace _id
-        const id = data._id;
+        const keypath = dbGlobals.keypath;
+        const id = data[keypath];
         console.log('this is the data sent to dbUpdateOne: ', data);
         discoUpdateOne(data);
 
@@ -97,14 +98,14 @@ function discoSyncOffline(method, url, store, clonedRequest) {
  * @param {Request} clonedResponse This is the cloned version of the intercepted fetch response
  *
  */
-function discoSyncOnline(method, url, store, clonedResponse) {
+function discoSyncOnline(method, url, clonedResponse) {
   switch(method) {
     case 'GET':
       const resCloneDB = clonedResponse;
       resCloneDB.json().then(data => {
         console.log('this is the rescloneDB: ', data)
         //delete existing indexedDB data
-        if (dbGlobals.DB) {
+        if (idbPromise.DB) {
           discoDeleteAll();
         } else {
           discoConnect( () => {
@@ -114,7 +115,7 @@ function discoSyncOnline(method, url, store, clonedResponse) {
         //populate indexedDB here
         data.data.forEach( note => {
           console.log('this is the note object: ', note);
-          if (dbGlobals.DB) {
+          if (idbPromise.DB) {
             discoAdd(note);
           } else {
             discoConnect( () => {

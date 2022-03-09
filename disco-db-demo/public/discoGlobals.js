@@ -1,17 +1,18 @@
 // const configVariables = require('./configMap.js');
-import dbGlobals from './configMap.js';
+// import dbGlobals from './configMap.js';
+import { dbGlobals } from './discodb.config.js'
 const idbPromise = {
   DB: null
 }
 
-const onlineUrlStoreMap = new Map();
+const onlineUrlArr = [];
 dbGlobals.onlineRoutes.forEach(el => {
-  onlineUrlStoreMap.set(el.url, el.store);
+  onlineUrlArr.push(el.url)
 });
 
-const offlineUrlStoreMap = new Map();
+const offlineUrlArr = [];
 dbGlobals.offlineRoutes.forEach(el => {
-  offlineUrlStoreMap.set(el.url, el.store);
+  offlineUrlArr.push(el.url);
 });
 
 //  module.exports = { idbPromise, onlineUrlStoreMap, offlineUrlStoreMap };
@@ -21,4 +22,4 @@ dbGlobals.offlineRoutes.forEach(el => {
    
 //  }
 
-export { dbGlobals, idbPromise, onlineUrlStoreMap, offlineUrlStoreMap }
+export { dbGlobals, idbPromise, onlineUrlArr, offlineUrlArr }

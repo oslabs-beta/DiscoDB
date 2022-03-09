@@ -1,36 +1,8 @@
-//Configuration File Setup
-/*
-//Config file//
-version: config required
-databaseName: default to 'database', but user should specify. Default values may be more difficult to update functions with. Should require it
-storeName: default to 'objectStore', but user should specify. Default values may be more difficult to update functions with. Should require it
-syncQueue: default to 'Queue', but user should specify. Default values may be more difficult to update functions with. Should require it
-keyPath: required, user needs to specify
+import { idbPromise, dbGlobals } from './discoGlobals.js';
 
-const config = {
-  version: '',
-  databaseName: '',
-  storeName: '',
-  syncQueue: '',
-  keypath: (their main database primary ID)
-}
-
-// globals in this file//
-DB assigned to null? 
-
-import { version, databseName, storeName, syncQueue, keyPath } from './discodb.config.json'
-*/
-const version = 9;
-const databaseName = 'notesDB';
-const storeName = 'notesStore';
-const syncQueue = 'Queue';
-const keyPath = '_id';
-
-// determine final 
-let DB = null;
-
-
-// import dbGlobals from './dbGlobals';
+// const idbPromise = {
+//   DB : null
+// }
 
 /**
  * @property {Function} discoConnect Establishes connection to indexedDB & create Object Stores as specified in Configuration.
@@ -39,35 +11,35 @@ let DB = null;
  */
 function discoConnect(callback) {
   return new Promise((resolve, reject) => {
-    let req = indexedDB.open(databaseName, version)
+    let req = indexedDB.open(dbGlobals.databaseName, dbGlobals.version)
     req.onerror = (err) => {
       //could not open db
       console.log('Error: ', err);
-      DB = null;
+      idbPromise.DB = null;
       reject(err);
     };
     req.onupgradeneeded = (event) => {
       let db = event.target.result;
       // Database Version Upgraded
-      if (!db.objectStoreNames.contains(storeName)) {
-        db.createObjectStore(storeName, {
-          keyPath: keyPath,
+      if (!db.objectStoreNames.contains(dbGlobals.storeName)) {
+        db.createObjectStore(dbGlobals.storeName, {
+          keyPath: dbGlobals.keypath,
         });
       }
-      if (!db.objectStoreNames.contains(syncQueue)) {
+      if (!db.objectStoreNames.contains(dbGlobals.syncQueue)) {
         //Creating Object Store for Sync Queue
-        db.createObjectStore(syncQueue, {
+        db.createObjectStore(dbGlobals.syncQueue, {
           keyPath: 'id', autoIncrement: true,
         })
       }
     };
     req.onsuccess = (event) => {
-      DB = event.target.result;
+      idbPromise.DB = event.target.result;
       //Database connected
       if (callback) {
         callback();
       }
-      resolve(DB);
+      resolve(idbPromise.DB);
       };
   })
 };
@@ -78,29 +50,30 @@ function discoConnect(callback) {
  *
  */
 function discoAdd(dataObject) {
-  return new Promise ( (resolve, reject) => {
-    if (dataObject && DB) {
-      let tx = DB.transaction(storeName, 'readwrite');
+  // return new Promise ( (resolve, reject) => {
+    if (dataObject && idbPromise.DB) {
+      let tx = idbPromise.DB.transaction(dbGlobals.storeName, 'readwrite');
 
       tx.onerror = (err) => {
         console.log('Error:', err);
-        reject(err);
+        // reject(err);
       };
       tx.oncomplete = (event) => {
         //Data added successfully
       };
       
-      let store = tx.objectStore(storeName);
+      let store = tx.objectStore(dbGlobals.storeName);
+      console.log('this is the dataObject being passed in: ', dataObject);
       let req = store.put(dataObject);
 
       req.onsuccess = (event) => {
-        const result = event.target.result;
-        resolve(result);
+        // const result = event.target.result;
+        // resolve(result);
       };
     } else {
       console.log('No data provided.');
     }
-  })
+  // })
 };
 
 /**
@@ -109,8 +82,8 @@ function discoAdd(dataObject) {
  */
 function discoDeleteAll() {
   return new Promise( (resolve, reject) => {
-    if (DB) {
-      let tx = DB.transaction(storeName, 'readwrite');
+    if (idbPromise.DB) {
+      let tx = idbPromise.DB.transaction(dbGlobals.storeName, 'readwrite');
       tx.onerror = (err) => {
         console.log('Error:', err);
         reject(err);
@@ -118,7 +91,7 @@ function discoDeleteAll() {
       tx.oncomplete = (event) => {
         // data deleted successfully 
       };
-      let store = tx.objectStore(storeName);
+      let store = tx.objectStore(dbGlobals.storeName);
       const req = store.clear();
       req.onsuccess = (event) => {
         const result = event.target.result;
@@ -136,8 +109,8 @@ function discoDeleteAll() {
  */
 function discoGetAll() {
   return new Promise((resolve, reject) => {
-    if (DB) {
-      let tx = DB.transaction(storeName, 'readonly');
+    if (idbPromise.DB) {
+      let tx = idbPromise.DB.transaction(dbGlobals.storeName, 'readonly');
       tx.onerror = (err) => {
         console.log('Error: ', err);
         reject(err);
@@ -145,7 +118,7 @@ function discoGetAll() {
       tx.oncomplete = (event) => {
         //Transaction successful, all objects retrieved.
       };
-      let store = tx.objectStore(storeName);
+      let store = tx.objectStore(dbGlobals.storeName);
       const req = store.getAll();
       req.onsuccess = (event) => {
         const result = event.target.result;
@@ -163,8 +136,8 @@ function discoGetAll() {
  */
 function discoDeleteOne(id) {
   return new Promise( (resolve, reject) => {
-    if (DB) {
-      let tx = DB.transaction(storeName, 'readwrite');
+    if (idbPromise.DB) {
+      let tx = idbPromise.DB.transaction(dbGlobals.storeName, 'readwrite');
       tx.onerror = (err) => {
         console.log('Error: ', err);
         reject(err);
@@ -172,9 +145,10 @@ function discoDeleteOne(id) {
       tx.oncomplete = (event) => {
         //Transaction successful
       };
-      let store = tx.objectStore(storeName);
+      let store = tx.objectStore(dbGlobals.storeName);
       const req = store.delete(id);
       req.onsuccess = (event) => {
+        console.log('this is in the discoDeleteOne success:');
         const result = event.target.result;
         resolve(result);
       };
@@ -191,8 +165,8 @@ function discoDeleteOne(id) {
  */
 function discoUpdateOne(dataObject) {
   return new Promise ( (resolve, reject) => {
-    if (DB) {
-      let tx = DB.transaction(storeName, 'readwrite');
+    if (idbPromise.DB) {
+      let tx = idbPromise.DB.transaction(dbGlobals.storeName, 'readwrite');
       tx.onerror = (err) => {
         console.log('Error: ', err);
         reject(err);
@@ -200,7 +174,7 @@ function discoUpdateOne(dataObject) {
       tx.oncomplete = (event) => {
         //Transaction successful
       };
-      let store = tx.objectStore(storeName);
+      let store = tx.objectStore(dbGlobals.storeName);
       const req = store.put(dataObject);
       req.onsuccess = (event) => {
         const result = event.target.result;

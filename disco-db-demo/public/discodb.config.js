@@ -1,4 +1,4 @@
-
+const dbGlobals = 
 {
   "version": 9,
   "databaseName": "notesDB",
@@ -8,17 +8,17 @@
   "onlineRoutes": [
     {
       "url": "http://localhost:3000/user/load",
-      "store": "notesStore"
     }
   ],
   "offlineRoutes": [
     {
       "url": "http://localhost:3000/user/load", 
-      "store": "notesStore" 
     },
     {
       "url": "http://localhost:3000/user/notes",
-      "store": "notesStore"
     }
   ]
 }
+
+
+export { dbGlobals };

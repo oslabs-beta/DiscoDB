@@ -1,7 +1,9 @@
-import { discoConnect } from './idbOperations';
+import { discoConnect } from './idbOperations.js';
 import { discoSyncToServer } from './backgroundSync.js';
 import { discoSyncOffline, discoSyncOnline } from './discoSync.js';
-import { onlineUrlStoreMap, onlineUrlStoreMap, dbGlobals } from '.discoGlobals.js';
+import { onlineUrlArr, offlineUrlArr, dbGlobals, idbPromise } from './discoGlobals.js';
+// import { dbGlobals } from './discoGlobals.js';
+
 
 const cacheName = 'my-site-cache-v3';
 
@@ -62,6 +64,7 @@ self.addEventListener('fetch', event => {
   //clone the request so that the body of the request will still be available
   const reqClone = event.request.clone();
   const { url, method } = event.request;
+  // console.log('dbGlobals: ', dbGlobals);
   event.respondWith(
     fetch(event.request)
     .then( (response) => {
@@ -76,18 +79,18 @@ self.addEventListener('fetch', event => {
           cache.put(event.request, resCloneCache);
         })      
       //invoke online reducer to populate indexedDB
-      if (onlineUrlStoreMap.has(url)){
-        discoSyncOnline(method, url, onlineUrlStoreMap.get(url), resCloneDB);  
+      if (onlineUrlArr.includes(url)){
+        discoSyncOnline(method, url, resCloneDB);  
       }
       return response;
     })
     // if network is unavailable
     .catch((err) => {
-      console.log('this is DB in catch block: ', dbGlobals.DB);
+      console.log('this is DB in catch block: ', idbPromise.DB);
       //invoke offline reducer to perform RUD functions to indexedDB
       // if (urlArr.includes(url))
-      if (offlineUrlStoreMap.has(url)){
-        return discoSyncOffline(method, url, offlineUrlStoreMap.get(url), reqClone); 
+      if (offlineUrlArr.includes(url)){
+        return discoSyncOffline(method, url, reqClone); 
       }
     })
   )
