@@ -55,42 +55,53 @@ function openDB (callback) {
 };
 
 function dbAdd(dataObject) {
-  if (dataObject && dbGlobals.DB) {
-    let tx = dbGlobals.DB.transaction(dbGlobals.storeName, 'readwrite');
-    tx.onerror = (err) => {
-      console.log('failed transaction');
-    };
-    tx.oncomplete = (event) => {
-      console.log('data saved successfully');
-    };
-    let store = tx.objectStore(dbGlobals.storeName);
-    let req = store.put(dataObject);
+  return new Promise ( (resolve, reject) => {
+    if (dataObject && dbGlobals.DB) {
+      let tx = dbGlobals.DB.transaction(dbGlobals.storeName, 'readwrite');
+      tx.onerror = (err) => {
+        console.log('failed transaction');
+        reject(err);
+      };
+      tx.oncomplete = (event) => {
+        console.log('data saved successfully');
+      };
+      let store = tx.objectStore(dbGlobals.storeName);
+      let req = store.put(dataObject);
 
-    req.onsuccess = (event) => {
-      //will trigger tx.oncomplete next
-    };
-  } else {
-    console.log('no data was provided');
-  }
+      req.onsuccess = (event) => {
+        //will trigger tx.oncomplete next
+        const result = event.target.result;
+        resolve(result);
+      };
+    } else {
+      console.log('no data was provided');
+    }
+  })
 }
 
 function dbDeleteAll() {
-  if (dbGlobals.DB) {
-    let tx = dbGlobals.DB.transaction(dbGlobals.storeName, 'readwrite');
-    tx.onerror = (err) => {
-      console.log('failed transaction');
-    };
-    tx.oncomplete = (event) => {
-      console.log('transaction success');
-    };
-    let store = tx.objectStore(dbGlobals.storeName);
-    const req = store.clear();
-    req.onsuccess = (event) => {
-      //will trigger tx.oncomplete
-    };
-  } else {
-    console.log('DB is closed');
-  }
+  return new Promise( (resolve, reject) => {
+    if (dbGlobals.DB) {
+      let tx = dbGlobals.DB.transaction(dbGlobals.storeName, 'readwrite');
+      tx.onerror = (err) => {
+        console.log('failed transaction');
+        reject(err);
+      };
+      tx.oncomplete = (event) => {
+        console.log('transaction success');
+      };
+      let store = tx.objectStore(dbGlobals.storeName);
+      const req = store.clear();
+      req.onsuccess = (event) => {
+        //will trigger tx.oncomplete
+        const result = event.target.result;
+        console.log('this is the onsuccess in dbDeleteAll: ', event.target.result);
+        resolve(result);
+      };
+    } else {
+      console.log('DB is closed');
+    }
+  })
 };
 
 function dbGetAll() {
@@ -120,43 +131,51 @@ function dbGetAll() {
 }
 
 function dbDeleteOne(key) {
-  if (dbGlobals.DB) {
-    let tx = dbGlobals.DB.transaction(dbGlobals.storeName, 'readwrite');
-    tx.onerror = (err) => {
-      console.log('failed transaction');
-    };
-    tx.oncomplete = (event) => {
-      console.log('transaction success');
-    };
-    let store = tx.objectStore(dbGlobals.storeName);
-    const req = store.delete(key);
-    req.onsuccess = (event) => {
-      //will trigger tx.oncomplete
-    };
-  } else {
-    console.log('DB is closed');
-  }
+  return new Promise ( (resolve, reject) => {
+    if (dbGlobals.DB) {
+      let tx = dbGlobals.DB.transaction(dbGlobals.storeName, 'readwrite');
+      tx.onerror = (err) => {
+        console.log('failed transaction');
+        reject(err);
+      };
+      tx.oncomplete = (event) => {
+        console.log('transaction success');
+      };
+      let store = tx.objectStore(dbGlobals.storeName);
+      const req = store.delete(key);
+      req.onsuccess = (event) => {
+        //will trigger tx.oncomplete
+        const result = event.target.result;
+        resolve(result);
+      };
+    } else {
+      console.log('DB is closed');
+    }
+  })
 }
 
 function dbUpdateOne(item) {
-  if (dbGlobals.DB) {
-    let tx = dbGlobals.DB.transaction(dbGlobals.storeName, 'readwrite');
-    tx.onerror = (err) => {
-      console.log('failed transaction');
-    };
-    tx.oncomplete = (event) => {
-      console.log('transaction success');
-    };
-    console.log('this is the item passed in: ', item);
-    let store = tx.objectStore(dbGlobals.storeName);
-    const req = store.put(item);
-    req.onsuccess = (event) => {
-      //will trigger tx.oncomplete
-      console.log('this is the patch success event: ', event);
-    };
-  } else {
-    console.log('DB is closed');
-  }
+  return new Promise ( (resolve, reject) => {
+    if (dbGlobals.DB) {
+      let tx = dbGlobals.DB.transaction(dbGlobals.storeName, 'readwrite');
+      tx.onerror = (err) => {
+        console.log('failed transaction');
+        reject(err);
+      };
+      tx.oncomplete = (event) => {
+        console.log('transaction success');
+      };
+      let store = tx.objectStore(dbGlobals.storeName);
+      const req = store.put(item);
+      req.onsuccess = (event) => {
+        //will trigger tx.oncomplete
+        const result = event.target.result;
+        resolve(result);
+      };
+    } else {
+      console.log('DB is closed');
+    }
+  })
 }
 
 //Function to Access specific object store in IDB database and start a transaction

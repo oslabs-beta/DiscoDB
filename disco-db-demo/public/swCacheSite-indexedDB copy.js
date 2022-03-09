@@ -17,18 +17,8 @@ const config = {
     },
   ]
 }
-const config2 = {
-  routes: [ A: {
-    { url: 'http://localhost:3000/user/load',
-      store : 'notesStore' 
-    }
-  },
-    { url: 'http://localhost:3000/user/notes',
-      store: 'notesStore'
-    },
-  ]
-}
 
+// generate arrays of url and store 
 const urlArr = [];
 config.routes.forEach(el => {
   urlArr.push(el.url);
