@@ -2,37 +2,9 @@ import { discoConnect } from './idbOperations.js';
 import { discoSyncToServer } from './backgroundSync.js';
 import { discoSyncOffline, discoSyncOnline } from './discoSync.js';
 import { onlineUrlArr, offlineUrlArr, dbGlobals, idbPromise } from './discoGlobals.js';
-// import { dbGlobals } from './discoGlobals.js';
 
 
 const cacheName = 'my-site-cache-v3';
-
-// const config = {
-//   onlineRoutes: [ 
-//     { url: 'http://localhost:3000/user/load',
-//       store : 'notesStore' 
-//     },
-//   ],
-//   offlineRoutes: [ 
-//     { url: 'http://localhost:3000/user/load',
-//       store : 'notesStore' 
-//     },
-//     { url: 'http://localhost:3000/user/notes',
-//       store: 'notesStore'
-//     },
-//   ]
-// }
-
-// // using map
-// const onlineUrlStoreMap = new Map();
-// config.onlineRoutes.forEach(el => {
-//   onlineUrlStoreMap.set(el.url, el.store);
-// });
-
-// const offlineUrlStoreMap = new Map();
-// config.offlineRoutes.forEach(el => {
-//   offlineUrlStoreMap.set(el.url, el.store);
-// });
 
 self.addEventListener('install', event => {
   console.log('Attempting to install service worker and cache static assets');
@@ -64,7 +36,6 @@ self.addEventListener('fetch', event => {
   //clone the request so that the body of the request will still be available
   const reqClone = event.request.clone();
   const { url, method } = event.request;
-  // console.log('dbGlobals: ', dbGlobals);
   event.respondWith(
     fetch(event.request)
     .then( (response) => {
@@ -86,16 +57,12 @@ self.addEventListener('fetch', event => {
     })
     // if network is unavailable
     .catch((err) => {
-      console.log('this is DB in catch block: ', idbPromise.DB);
       //invoke offline reducer to perform RUD functions to indexedDB
-      // if (urlArr.includes(url))
       if (offlineUrlArr.includes(url)){
         return discoSyncOffline(method, url, reqClone); 
       }
-      console.log('this url is not configured');
       return caches.match(reqClone)
       .then(response => {
-        console.log('-----------this is in the caches response block: ', reqClone);
         return response
       })
     })
