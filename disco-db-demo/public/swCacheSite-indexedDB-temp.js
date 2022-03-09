@@ -7,37 +7,6 @@ const cacheName = 'my-site-cache-v3';
 
 let DB;
 
-const config = {
-  routes: [ 
-    { url: 'http://localhost:3000/user/load',
-      store : 'notesStore' 
-    },
-    { url: 'http://localhost:3000/user/notes',
-      store: 'notesStore'
-    },
-  ]
-}
-const config2 = {
-  routes: [ A: {
-    { url: 'http://localhost:3000/user/load',
-      store : 'notesStore' 
-    }
-  },
-    { url: 'http://localhost:3000/user/notes',
-      store: 'notesStore'
-    },
-  ]
-}
-
-const urlArr = [];
-config.routes.forEach(el => {
-  urlArr.push(el.url);
-});
-
-const storeArr = [];
-config.routes.forEach(el => {
-  storeArr.push(el.store);
-});
 
 
 self.addEventListener('install', event => {
@@ -90,18 +59,19 @@ self.addEventListener('fetch', event => {
         .then(cache => {
           //Add response to cache
           cache.put(event.request, resCloneCache);
-        })      
+        })
+      // if(url is in url.config) 
+      //    func(event.request.method, event.request.url, data)
+      
       //invoke online reducer to populate indexedDB
-
-      requestReducerOnline(method, url, event.request, resCloneDB); // Eric: figure out how best to pass store into this reducer. Match parameters to the offline reducer. Look at catch block 
+      requestReducerOnline(method, url, event.request, resCloneDB);
       return response;
     })
     // if network is unavailable
     .catch((err) => {
       console.log('this is DB in catch block: ', DB);
       //invoke offline reducer to perform RUD functions to indexedDB
-      if (urlArr.includes(url))
-       return requestReducerOffline(method, url, store, reqClone); // Eric: figure out how best to pass store into this reducer
+      return requestReducerOffline(method, url, reqClone);
     })
   )
 });
@@ -187,7 +157,14 @@ function requestReducerOnline(method, url, eventRequest, clonedResponse) {
 // method:''
 // }
 
-
+// {routes: 
+//   { url: '',
+//     store : [] 
+//   },
+//   { url: '',
+//   methods: []
+//   },
+// }
 
 //      GET method at URL
 // else if (url === x && method: DELETE)
