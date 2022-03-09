@@ -26,7 +26,7 @@ function discoAddToQueue (dataObject) {
  */
 async function discoRegisterSync() {
   try {
-    const register = await registration.sync.register('failed_requests');
+    const register = await registration.sync.register('discoSync');
     return register;
   } catch(error) {
     console.log('Error:' , error);
