@@ -92,6 +92,12 @@ self.addEventListener('fetch', event => {
       if (offlineUrlArr.includes(url)){
         return discoSyncOffline(method, url, reqClone); 
       }
+      console.log('this url is not configured');
+      return caches.match(reqClone)
+      .then(response => {
+        console.log('-----------this is in the caches response block: ', reqClone);
+        return response
+      })
     })
   )
 });
