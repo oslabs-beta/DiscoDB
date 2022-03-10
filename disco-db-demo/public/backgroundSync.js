@@ -1,14 +1,5 @@
 import { idbPromise, dbGlobals } from './discoGlobals.js';
 
-// import { storeName, syncQueue } from './discodb.config.json'
-
-// const version = 9;
-// const databaseName = 'notesDB';
-// const storeName = 'notesStore';
-// const syncQueue = 'Queue';
-// const keyPath = '_id';
-
-
 /**
  * @property {Function} accessObjectStore Access object store in IDB database and start a transaction
  * @param {String} storeName Object store to be accessed for transaction  
