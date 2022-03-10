@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cdn.discordapp.com/attachments/940293533359824931/951337306558713957/Untitled_design.png" alt="DiscoDB Logo"/>
+  <img src="https://cdn.discordapp.com/attachments/940293533359824931/951341651245269012/DiscoDB-logo-400X1000.png" alt="DiscoDB Logo"/>
 </p>
 
 <!-- [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/oslabs-beta/discodb/pulls)
