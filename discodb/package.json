@@ -1,6 +1,6 @@
 {
   "name": "disco-db",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A minimalist IndexedDB wrapper and syncing solution for when your application disco(nnects) from the network",
   "main": "index.js",
   "scripts": {
