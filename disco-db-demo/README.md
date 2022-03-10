@@ -1,3 +1,16 @@
+Things to Note in our Readme
+- Offline sync queue currently maxes out at 50 requests (validate this)
+
+
+//Config file//
+version: config required
+databaseName: default to 'database', but user should specify. Default values may be more difficult to update functions with. Should require it
+storeName: default to 'objectStore', but user should specify. Default values may be more difficult to update functions with. Should require it
+syncQueue: default to 'Queue', but user should specify. Default values may be more difficult to update functions with. Should require it
+keyPath: required, user needs to specify
+
+
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
