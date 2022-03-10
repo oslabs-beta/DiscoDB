@@ -102,20 +102,20 @@ export { dbGlobals };
 
 ``discoSyncOffline(method, url, clonedRequest)`` 
 
-``discoSyncOffline`` is a request reducer that intercepts fetch requests and implements CRUD operations on the passed in endpoints.
+1. ``discoSyncOffline`` is a request reducer that intercepts fetch requests and implements CRUD operations on the passed in endpoints.
 
-``discoSyncOffline`` takes in three parameters, the method and url of the ``event.request`` as well as a clone of the ``event.request``, utilizing the ``.clone()`` method.
+2. ``discoSyncOffline`` takes in three parameters, the method and url of the ``event.request`` as well as a clone of the ``event.request``, utilizing the ``.clone()`` method.
 
-Under the hood, ``discoSyncOffline`` will check the url, and perform a **GET**, **DELETE**, or **PATCH** operation with indexedDB and return a new **Response** object back to the client.
+3. Under the hood, ``discoSyncOffline`` will check the url, and perform a **GET**, **DELETE**, or **PATCH** operation with indexedDB and return a new **Response** object back to the client.
 
 
 ``discoSyncOnline(method, url, clonedResponse)``
 
-``discoSyncOnline`` establishes a connection to indexedDB and populates the object store with your noSQL data.
+1. ``discoSyncOnline`` establishes a connection to indexedDB and populates the object store with your noSQL data.
 
-``discoSyncOnline`` takes in three paramaters, the method and url of the ``event.request`` as well as a clone of the ``response`` that was sent back from the server. 
+2. ``discoSyncOnline`` takes in three paramaters, the method and url of the ``event.request`` as well as a clone of the ``response`` that was sent back from the server. 
 
-Under the hood, ``discoSyncOnline`` will check the url passed in and first clear indexedDB of any stale data, and repopulate with the response body that it received back from the server.
+3. Under the hood, ``discoSyncOnline`` will check the url passed in and first clear indexedDB of any stale data, and repopulate with the response body that it received back from the server.
 
 
 ### Initializing IndexedDB Database
