@@ -12,11 +12,13 @@
 
 - [How It works](#how-it-works)
 
-- [Demo Apps](#demo-apps)
+- [Demo Apps](#demo-app)
 
 - [Contributing](#contributing)
 
 - [Authors](#authors)
+
+- [License](#license)
 
 ## Features
 
@@ -25,8 +27,7 @@
 - Functionalities can be implemented via Service Workers with minimal modification to client side code
 - Supports syncing IDB with NoSQL databases (MongoDB) with a unique keypath
 - Promise based wrapper for IDB to perform local CRUD operations while offline to provide seamless UX
-- Action Queue 
-- Automatic detection of network status when 
+- Sync to main database via action queue with automatic network availability detection.
 
 <br>
   <details>
@@ -209,5 +210,8 @@ We'd love for you to test this library out and submit any issues you encounter. 
 
 [Young Min Lee](https://github.com/youngmineeh) | [LinkedIn](www.linkedin.com/in/youngminlee-)
 
+<br>
 
+## License
 
+DiscoDB is [MIT licensed](https://github.com/oslabs-beta/discodb/blob/main/LICENSE.md).
