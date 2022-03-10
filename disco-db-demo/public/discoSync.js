@@ -20,14 +20,11 @@ function discoSyncOffline(method, url, clonedRequest) {
         return discoGetAll().then((data) => {
           //REVISIT THIS, make sure to change data back to data!!
           const responseBody = { data };
-          console.log('this is the response body inside the request reducer function: ');
-          console.log({responseBody});
           const IDBData = new Response(JSON.stringify(responseBody));
           return IDBData;
         })
       } else {
         return discoConnect( () => {
-          console.log('invoking dbGetAll in else')
           discoGetAll().then((data) => {
             const responseBody = {data: data};
             const IDBData = new Response(JSON.stringify(responseBody));
@@ -43,16 +40,13 @@ function discoSyncOffline(method, url, clonedRequest) {
           method: method,
           body: data
         };
-        console.log('this is the delete data object when network fails: ', data);
         discoRegisterSync();
         discoAddToQueue(reqBody);
         const keypath = dbGlobals.keypath;
         const id = data[keypath];
-        console.log('this is id of dbGlobals.keyPath, ', dbGlobals.keypath);
         //call function to DELETE note
         discoDeleteOne(id);
         const deleteResponse = new Response(JSON.stringify({}));
-        console.log({ deleteResponse });
         return deleteResponse;
       })
       .catch( err => {
@@ -71,20 +65,17 @@ function discoSyncOffline(method, url, clonedRequest) {
         //call function to UPDATE note
         const keypath = dbGlobals.keypath;
         const id = data[keypath];
-        console.log('this is the data sent to dbUpdateOne: ', data);
         discoUpdateOne(data);
 
         // returns empty object to trigger rerender in our app 
         // assumes developer does not want to do anything with the response
         const patchResponse = new Response(JSON.stringify({}));
-        console.log({ patchResponse });
         return patchResponse;
       }) 
     default:
       console.log('this url is not configured');
       return caches.match(clonedRequest)
         .then(response => {
-          console.log('-----------this is in the caches response block: ', clonedRequest);
           return response
         })
   }
@@ -103,7 +94,6 @@ function discoSyncOnline(method, url, clonedResponse) {
     case 'GET':
       const resCloneDB = clonedResponse;
       resCloneDB.json().then(data => {
-        console.log('this is the rescloneDB: ', data)
         //delete existing indexedDB data
         if (idbPromise.DB) {
           discoDeleteAll();
@@ -114,7 +104,6 @@ function discoSyncOnline(method, url, clonedResponse) {
         }
         //populate indexedDB here
         data.data.forEach( note => {
-          console.log('this is the note object: ', note);
           if (idbPromise.DB) {
             discoAdd(note);
           } else {
@@ -123,7 +112,6 @@ function discoSyncOnline(method, url, clonedResponse) {
             })
           }
         })
-        console.log('returning eventresponse after adding all notes into IndexedDB');
       });
       break;
     default:

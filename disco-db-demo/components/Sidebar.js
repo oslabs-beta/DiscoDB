@@ -17,16 +17,12 @@ const router = useRouter();
 const [setSidebar, setNewSidebar] = useState([]);
 //Saves all notes as buttons for user on front-end for later access.
 const sidebarArray = [];
-
-console.log('this is in sidebar.js', props.noteArray);
-
 //On initial render, invoke useEffect to grab all notes on props pertaining to user.
 //Populate the notes in an array and update state to reflect.
 
   useEffect(() => {
     props.noteArray.forEach((ele) => {
     //usernote has entire object per note for user
-    console.log(ele.title);
     const userNoteButton = <ListItem button id={ele._id} key={ele._id} onClick={currNoteHandler}>
     <NotesIcon></NotesIcon>
     <ListItemText primary={ele.title || 'Untitled Note...'}/>
@@ -57,9 +53,7 @@ console.log('this is in sidebar.js', props.noteArray);
     })
     .then(res => res.json())
     .then((data) => {
-      console.log('this is the response from NEW NOTE button', data);
       const uniqId = data.data._id;
-
       const newNote = 
           <ListItem button id={uniqId} key={uniqId} onClick={currNoteHandler}>
             <NotesIcon></NotesIcon>

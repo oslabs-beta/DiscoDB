@@ -7,9 +7,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 
 export default function NotesContainer(props) {
 
-
-  console.log('current setTitle: ',props.setTitle)
-
   const handleTitle = (event) => {
     props.setNewTitle(event.target.value);
   };
@@ -44,8 +41,6 @@ export default function NotesContainer(props) {
 
     const noteTitle = document.querySelector('[name="noteTitle"]');
     const noteContent = document.querySelector('[name="noteContent"]');
-
-
     const saveBody = {
       //grab id from query params
       _id: props.noteID,
@@ -65,9 +60,6 @@ export default function NotesContainer(props) {
     })
     .then(res => res.json())
     .then(data => {
-      console.log('Success, this is the patch response', data);
-      //what do we do here on successful note update?
-
       props.setRefresh(true);
     })
     .catch((err) => {

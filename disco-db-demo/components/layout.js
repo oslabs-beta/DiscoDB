@@ -6,10 +6,7 @@ import Toolbar from '@mui/material/Toolbar';
 import React, { useEffect, useState } from 'react';
 
 export default function Layout({ children }) {
-
   const [isLoading, setLoading] = useState(true);
-
-  //pass in to use effect from /api/hello for testing
   const userNoteArr = [];
   const [online, setOnline] = React.useState(true);
   const [noteArray, setNewNote] = useState([]);
@@ -33,13 +30,8 @@ export default function Layout({ children }) {
     .then((res) => res.json())
     .then( (data) => {
       //Iterate thru retrived data and create a copy of each object into state array.
-      console.log('this is the response from the backend /user/load endpoint: ', data);
       data.data.forEach((ele) => {
-
         userNoteArr.push(ele);
-
-        //const { username, _id, title, content, createdAt, updatedAt } = ele
-
       });
         setNewNote(userNoteArr);
 

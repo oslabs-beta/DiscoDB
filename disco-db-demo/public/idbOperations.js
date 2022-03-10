@@ -1,9 +1,5 @@
 import { idbPromise, dbGlobals } from './discoGlobals.js';
 
-// const idbPromise = {
-//   DB : null
-// }
-
 /**
  * @property {Function} discoConnect Establishes connection to indexedDB & create Object Stores as specified in Configuration.
  * @param {Function} callback 
@@ -63,7 +59,6 @@ function discoAdd(dataObject) {
       };
       
       let store = tx.objectStore(dbGlobals.storeName);
-      console.log('this is the dataObject being passed in: ', dataObject);
       let req = store.put(dataObject);
 
       req.onsuccess = (event) => {
@@ -148,7 +143,6 @@ function discoDeleteOne(id) {
       let store = tx.objectStore(dbGlobals.storeName);
       const req = store.delete(id);
       req.onsuccess = (event) => {
-        console.log('this is in the discoDeleteOne success:');
         const result = event.target.result;
         resolve(result);
       };

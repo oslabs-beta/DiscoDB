@@ -27,9 +27,6 @@ export default function Navbar(props) {
     props.setOnline(true);
   })
   
-  console.log('isOnline inside of the navbar: ', props.online);
-    
-
   const handleLogout = (event) => {
     event.preventDefault();
     //sends GET request to auth/logout
@@ -40,7 +37,6 @@ export default function Navbar(props) {
     fetch(testURL)
     .then(response => response.json())
     .then(data => {
-      console.log('Success! ', data);
       //clear out username in local storage when user logs off
       localStorage.clear();
       router.push('/auth/login');
