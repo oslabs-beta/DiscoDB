@@ -51,7 +51,7 @@
 ## Installation
 
 ```bash
-npm install discodb
+npm install disco-db
 ```
 ### Import the Library into the Service Worker
 Assuming a bundler such as Webpack, Rollup, etc is used:
