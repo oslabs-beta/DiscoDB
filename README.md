@@ -27,8 +27,7 @@
 - Functionalities can be implemented via Service Workers with minimal modification to client side code
 - Supports syncing IDB with NoSQL databases (MongoDB) with a unique keypath
 - Promise based wrapper for IDB to perform local CRUD operations while offline to provide seamless UX
-- Action Queue 
-- Automatic detection of network status when 
+- Sync to main database via action queue with automatic network availability detection.
 
 <br>
   <details>
