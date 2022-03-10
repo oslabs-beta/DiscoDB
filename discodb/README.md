@@ -215,7 +215,7 @@ We'd love for you to test this library out and submit any issues you encounter. 
 
 ## License
 
-DiscoDB is [MIT licensed](https://github.com/open-source-labs/discodb/blob/master/LICENSE.md).
+DiscoDB is [MIT licensed](https://github.com/oslabs-beta/discodb/blob/main/LICENSE.md).
 
 
 
