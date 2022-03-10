@@ -12,11 +12,13 @@
 
 - [How It works](#how-it-works)
 
-- [Demo Apps](#demo-apps)
+- [Demo Apps](#demo-app)
 
 - [Contributing](#contributing)
 
 - [Authors](#authors)
+
+- [License](#license)
 
 ## Features
 
@@ -208,6 +210,12 @@ We'd love for you to test this library out and submit any issues you encounter. 
 <br>
 
 [Young Min Lee](https://github.com/youngmineeh) | [LinkedIn](www.linkedin.com/in/youngminlee-)
+
+<br>
+
+## License
+
+DiscoDB is [MIT licensed](https://github.com/open-source-labs/discodb/blob/master/LICENSE.md).
 
 
 
