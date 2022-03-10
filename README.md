@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://media.discordapp.net/attachments/940293533359824931/951328016083075092/DiscoDB-logos.jpeg?width=650&height=650" alt="DiscoDB Logo"/>
+  <img src="https://cdn.discordapp.com/attachments/940293533359824931/951337306558713957/Untitled_design.png" alt="DiscoDB Logo"/>
 </p>
 
 <!-- [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/oslabs-beta/discodb/pulls)
@@ -31,30 +31,26 @@
 - Supports syncing IDB with NoSQL databases (MongoDB) with a unique keypath
 - Promise based wrapper for IDB to perform local CRUD operations while offline to provide seamless UX
 - Action Queue 
-- Automatic detection of network status to 
+- Automatic detection of network status when 
 
 <br>
-<details>
-    <summary>Showcase</summary>
-
   <details>
-    <summary>Offline Capabilities</summary>
+    <summary><b>Offline Capabilities</b></summary>
 
-  ![Offline](https://discodb.dev/wp-content/uploads/2022/03/Offline_capability2.gif)
+  ![](https://discodb.dev/wp-content/uploads/2022/03/Offline_capability2.gif)
   </details>
 
   <details>
-    <summary>Dynamic Offline Data</summary>
+    <summary><b>Dynamic Offline Data</b></summary>
 
-  ![Dynamic](https://discodb.dev/wp-content/uploads/2022/03/indexedDB_update.gif)
+  ![](https://discodb.dev/wp-content/uploads/2022/03/indexedDB_update.gif)
   </details>
 
   <details>
-    <summary>Custom Action Queue</summary>
+    <summary><b>Custom Action Queue</b></summary>
 
-  ![Sync](https://discodb.dev/wp-content/uploads/2022/03/actionqueue.gif)
+  ![](https://discodb.dev/wp-content/uploads/2022/03/actionqueue.gif)
   </details>
-</details>
 <br>
 
 ## Installation
@@ -63,7 +59,7 @@
 npm install discodb
 ```
 ### Import the Library into the Service Worker
-Assuming a bundler such as wepack, Rollup, etc is used:
+Assuming a bundler such as Webpack, Rollup, etc is used:
 ```js
 import { discoConnect, discoSyncToServer, discoSyncOffline, discoSyncOnline, onlineUrlArr, offlineUrlArr, dbGlobals, idbPromise } from 'discodb';
 ```
