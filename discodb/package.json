@@ -4,7 +4,7 @@
   "description": "A minimalist IndexedDB wrapper and syncing solution for when your application disco(nnects) from the network",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup --config"
   },
   "repository": {
     "type": "git",
@@ -40,5 +40,11 @@
   "bugs": {
     "url": "https://github.com/oslabs-beta/DiscoDB/issues"
   },
-  "homepage": "https://discodb.dev/"
+  "homepage": "https://discodb.dev/",
+  "devDependencies": {
+    "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-node-resolve": "^13.1.3",
+    "rollup": "^2.70.1",
+    "rollup-plugin-terser": "^7.0.2"
+  }
 }

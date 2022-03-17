@@ -1,4 +1,4 @@
-import { idbPromise, dbGlobals } from '../../../discodb.config.js';
+import { idbPromise, dbGlobals } from './discoGlobals';
 
 /**
  * @property {Function} accessObjectStore Access object store in IDB database and start a transaction
