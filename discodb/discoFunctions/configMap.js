@@ -15,7 +15,6 @@ function findStartingWith(start, target) {
     data = fs.readFileSync(file, 'utf-8');
     return JSON.parse(data);
   } catch (err) {
-
     if (path.dirname(start) !== start) {
       return findStartingWith(path.dirname(start), target);
     }
@@ -26,6 +25,7 @@ function findStartingWith(start, target) {
 // console.log(dbGlobals)
 
 const dbGlobals = find('discodb.config.json');
+console.log(dbGlobals)
 
 // module.exports = dbGlobals;
 export default dbGlobals;

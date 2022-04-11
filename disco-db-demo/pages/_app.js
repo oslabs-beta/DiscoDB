@@ -10,7 +10,7 @@ function MyApp({ Component, pageProps }) {
   useEffect(() => {
     if("serviceWorker" in navigator && 'SyncManager' in window) {
       window.addEventListener("load", function () {
-       navigator.serviceWorker.register("../swCacheSite-indexedDB.js", {type: 'module', scope: '/'}).then(
+       navigator.serviceWorker.register("../sw.esm.js", {type: 'module', scope: '/'}).then(
           function (registration) {
             console.log("Service Worker registration successful with scope: ", registration.scope);
           },

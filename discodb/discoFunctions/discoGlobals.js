@@ -1,5 +1,5 @@
 // import { dbGlobals } from '../../../discodb.config.js'
-import { dbGlobals } from './configMap'
+import dbGlobals from './configMap'
 
 const idbPromise = {
   DB: null
